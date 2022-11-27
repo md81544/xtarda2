@@ -1,17 +1,20 @@
-use sfml::graphics::{ Color, RenderTarget, RenderWindow };
-use sfml::system::{Vector2i};
+use sfml::graphics::{Color, RenderTarget, RenderWindow};
+use sfml::system::Vector2i;
 use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
 
 mod game;
 
 fn main() {
-
-    let screen_width  = VideoMode::desktop_mode().width;
+    let screen_width = VideoMode::desktop_mode().width;
     let screen_height = VideoMode::desktop_mode().height;
     let ratio: f32 = screen_width as f32 / screen_height as f32;
 
-    let window_width = if screen_width >= 1920 { 1920 } else { screen_width };
-    let window_height = ( window_width as f32 /ratio ) as u32;
+    let window_width = if screen_width >= 1920 {
+        1920
+    } else {
+        screen_width
+    };
+    let window_height = (window_width as f32 / ratio) as u32;
 
     let mut window = RenderWindow::new(
         (window_width, window_height),
@@ -31,16 +34,14 @@ fn main() {
         while let Some(event) = window.poll_event() {
             match event {
                 Event::Closed => window.close(),
-                Event::KeyReleased { code, .. } => {
-                    match code {
-                        Key::Escape => {
-                            window.close();
-                        },
-                        Key::Q => {
-                            window.close();
-                        },
-                        _ => {}
+                Event::KeyReleased { code, .. } => match code {
+                    Key::Escape => {
+                        window.close();
                     }
+                    Key::Q => {
+                        window.close();
+                    }
+                    _ => {}
                 },
                 _ => {} // ignore other events
             }
