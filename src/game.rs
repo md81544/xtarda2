@@ -9,6 +9,7 @@ pub struct Game {
     mothership_pos_y: f32,
     mothership_pos_x: f32,
     mothership_direction: i8,
+    mothership_width: u32,
 }
 
 impl Game {
@@ -20,6 +21,7 @@ impl Game {
             mothership_pos_x: 50.0,
             mothership_pos_y: 50.0,
             mothership_direction: 20,
+            mothership_width: 80,
         }
     }
 
@@ -41,7 +43,7 @@ impl Game {
     }
 
     pub fn iterate(&mut self) {
-        if (self.mothership_pos_x > (self.window_width - 150) as f32 &&
+        if (self.mothership_pos_x > (self.window_width - (self.mothership_width + 50)) as f32 &&
                 self.mothership_direction > 0)||
            (self.mothership_pos_x < 50.0 && self.mothership_direction < 0 ) {
             self.mothership_direction = -self.mothership_direction;
