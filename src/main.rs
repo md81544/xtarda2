@@ -47,7 +47,7 @@ fn main() {
             }
         }
         window.clear(Color::BLACK);
-        game.iterate();
+        game.next_frame();
         game.draw_screen(&mut window);
         window.display();
     }
