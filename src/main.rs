@@ -28,6 +28,7 @@ fn main() {
     window.set_mouse_cursor_visible(false);
 
     let mut game = game::Game::new(window_width, window_height);
+    game.set_level(1);
 
     // Main Loop
     while window.is_open() {

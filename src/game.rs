@@ -1,28 +1,40 @@
+use rand::Rng;
 use sfml::graphics::{
     CircleShape, Color, RectangleShape, RenderTarget, RenderWindow, Shape, Transformable,
 };
 use sfml::system::Vector2f;
 
+struct Asteroid {
+    height: u32,
+    x_pos: i32,
+    speed: i32,
+    r1: f32,
+    r2: f32,
+    r3: f32,
+}
+
 pub struct Game {
-    _level: u8,
+    level: u8,
     window_width: u32,
     window_height: u32,
     mothership_pos_y: f32,
     mothership_pos_x: f32,
     mothership_direction: i8,
     mothership_width: u32,
+    asteroids: Vec<Asteroid>,
 }
 
 impl Game {
     pub fn new(window_width: u32, window_height: u32) -> Game {
         Game {
-            _level: 1,
+            level: 1,
             window_width,
             window_height,
             mothership_pos_x: 50.0,
             mothership_pos_y: 100.0,
             mothership_direction: 10,
             mothership_width: 80,
+            asteroids: Vec::new(),
         }
     }
 
@@ -88,10 +100,37 @@ impl Game {
         window.draw(&ground);
     }
 
+    fn draw_asteroids(&mut self, window: &mut RenderWindow) {
+        for asteroid in &self.asteroids {
+            let mut blob1 = CircleShape::new(asteroid.r1, 8);
+            blob1.set_fill_color(Color::rgb(0, 120, 0));
+            blob1.set_position(Vector2f::new(
+                asteroid.x_pos as f32,
+                asteroid.height as f32 + 10.0,
+            ));
+            window.draw(&blob1);
+            let mut blob2 = CircleShape::new(asteroid.r2, 8);
+            blob2.set_fill_color(Color::rgb(0, 100, 0));
+            blob2.set_position(Vector2f::new(
+                asteroid.x_pos as f32 + 20.0,
+                asteroid.height as f32,
+            ));
+            window.draw(&blob2);
+            let mut blob3 = CircleShape::new(asteroid.r3, 8);
+            blob3.set_fill_color(Color::rgb(0, 80, 0));
+            blob3.set_position(Vector2f::new(
+                asteroid.x_pos as f32 + 60.0,
+                asteroid.height as f32 + 10.0,
+            ));
+            window.draw(&blob3);
+        }
+    }
+
     pub fn draw_screen(&mut self, window: &mut RenderWindow) {
         self.draw_mothership(window);
         self.draw_ground(window);
         self.draw_landing_pad(window);
+        self.draw_asteroids(window);
     }
 
     pub fn next_frame(&mut self) {
@@ -102,5 +141,37 @@ impl Game {
             self.mothership_direction = -self.mothership_direction;
         }
         self.mothership_pos_x += self.mothership_direction as f32;
+        for asteroid in &mut self.asteroids {
+            asteroid.x_pos += asteroid.speed;
+            if asteroid.speed > 0 && asteroid.x_pos > self.window_width as i32 {
+                asteroid.x_pos = -150;
+            }
+            if asteroid.speed < 0 && asteroid.x_pos < -150 {
+                asteroid.x_pos = self.window_width as i32;
+            }
+        }
+    }
+
+    pub fn set_level(&mut self, level: u8) {
+        self.level = level;
+        self.asteroids.clear();
+        let num_asteroids = 5 + 2 * level;
+        let mut rng = rand::thread_rng();
+        for n in 0..num_asteroids {
+            let max_speed = (4 + level * 2) as i32;
+            let mut speed = rng.gen_range(-max_speed..max_speed);
+            if speed == 0 {
+                speed = max_speed;
+            }
+            let asteroid = Asteroid {
+                height: 180 + 50 * n as u32,
+                x_pos: rng.gen_range(50..self.window_width as i32 - 50),
+                speed: speed,
+                r1: rng.gen_range(20.0..40.0),
+                r2: rng.gen_range(30.0..50.0),
+                r3: rng.gen_range(20.0..40.0),
+            };
+            self.asteroids.push(asteroid);
+        }
     }
 }
