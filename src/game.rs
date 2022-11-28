@@ -22,6 +22,9 @@ pub struct Game {
     mothership_direction: i8,
     mothership_width: u32,
     asteroids: Vec<Asteroid>,
+    pod_pos_x: f32,
+    pod_pos_y: f32,
+    pod_dropping: bool,
 }
 
 impl Game {
@@ -35,12 +38,15 @@ impl Game {
             mothership_direction: 10,
             mothership_width: 80,
             asteroids: Vec::new(),
+            pod_pos_x: 0.0,
+            pod_pos_y: 100.0,
+            pod_dropping: false,
         }
     }
 
     fn draw_mothership(&mut self, window: &mut RenderWindow) {
         let mut fin = RectangleShape::with_size(Vector2f::new(15.0, 15.0));
-        fin.set_fill_color(Color::rgb(0, 255, 0));
+        fin.set_fill_color(Color::rgb(0, 200, 0));
         fin.set_position(Vector2f::new(
             self.mothership_pos_x,
             self.mothership_pos_y + 15.0,
@@ -91,13 +97,13 @@ impl Game {
 
     fn draw_landing_pad(&mut self, window: &mut RenderWindow) {
         let pad_width = 250.0;
-        let mut ground = RectangleShape::with_size(Vector2f::new(pad_width, 20.0));
-        ground.set_fill_color(Color::rgb(0, 255, 0));
-        ground.set_position(Vector2f::new(
+        let mut pad = RectangleShape::with_size(Vector2f::new(pad_width, 20.0));
+        pad.set_fill_color(Color::rgb(0, 200, 0));
+        pad.set_position(Vector2f::new(
             self.window_width as f32 / 2.0 - (pad_width / 2.0),
             self.window_height as f32 - 60.0,
         ));
-        window.draw(&ground);
+        window.draw(&pad);
     }
 
     fn draw_asteroids(&mut self, window: &mut RenderWindow) {
@@ -126,11 +132,21 @@ impl Game {
         }
     }
 
+    fn draw_pod(&mut self, window: &mut RenderWindow) {
+        let mut pod = RectangleShape::with_size(Vector2f::new(20.0, 20.0));
+        pod.set_fill_color(Color::rgb(0, 255, 0));
+        pod.set_position(Vector2f::new(self.pod_pos_x, self.pod_pos_y));
+        window.draw(&pod);
+    }
+
     pub fn draw_screen(&mut self, window: &mut RenderWindow) {
         self.draw_mothership(window);
         self.draw_ground(window);
         self.draw_landing_pad(window);
         self.draw_asteroids(window);
+        if self.pod_dropping {
+            self.draw_pod(window);
+        }
     }
 
     pub fn next_frame(&mut self) {
@@ -148,6 +164,12 @@ impl Game {
             }
             if asteroid.speed < 0 && asteroid.x_pos < -150 {
                 asteroid.x_pos = self.window_width as i32;
+            }
+        }
+        if self.pod_dropping {
+            self.pod_pos_y += 5.0;
+            if self.pod_pos_y > self.window_height as f32 {
+                self.pod_dropping = false;
             }
         }
     }
@@ -173,5 +195,14 @@ impl Game {
             };
             self.asteroids.push(asteroid);
         }
+    }
+
+    pub fn drop_pod(&mut self) {
+        if self.pod_dropping == true {
+            return;
+        };
+        self.pod_dropping = true;
+        self.pod_pos_x = self.mothership_pos_x + 40.0;
+        self.pod_pos_y = self.mothership_pos_y + 30.0;
     }
 }

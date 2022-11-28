@@ -42,6 +42,9 @@ fn main() {
                     Key::Q => {
                         window.close();
                     }
+                    Key::Down => {
+                        game.drop_pod();
+                    }
                     _ => {}
                 },
                 _ => {} // ignore other events
