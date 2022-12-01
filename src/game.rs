@@ -1,6 +1,7 @@
 use rand::Rng;
 use sfml::graphics::{
-    CircleShape, Color, RectangleShape, RenderTarget, RenderWindow, Shape, Transformable,
+    CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
+    Transformable,
 };
 use sfml::system::Vector2f;
 
@@ -25,10 +26,23 @@ pub struct Game {
     pod_pos_x: f32,
     pod_pos_y: f32,
     pod_dropping: bool,
+    font: sfml::SfBox<Font>,
 }
 
 impl Game {
     pub fn new(window_width: u32, window_height: u32) -> Game {
+        let mut font_path = "res/zx-spectrum.ttf".to_string();
+        let mut count = 0;
+        let font = loop {
+            if let Some(result) = Font::from_file(&font_path) {
+                break result;
+            }
+            count += 1;
+            if count > 3 {
+                panic!("Could not find font file")
+            };
+            font_path = "../".to_string() + &font_path;
+        };
         Game {
             level: 1,
             window_width,
@@ -41,6 +55,7 @@ impl Game {
             pod_pos_x: 0.0,
             pod_pos_y: 100.0,
             pod_dropping: false,
+            font,
         }
     }
 
@@ -139,11 +154,19 @@ impl Game {
         window.draw(&pod);
     }
 
+    fn draw_text(&mut self, window: &mut RenderWindow) {
+        let mut text = Text::new("Xtarda Rescue", &self.font, 30);
+        text.set_position(Vector2f::new(20.0, 20.0));
+        text.set_fill_color(Color::rgb(0, 200, 0));
+        window.draw(&text);
+    }
+
     pub fn draw_screen(&mut self, window: &mut RenderWindow) {
         self.draw_mothership(window);
         self.draw_ground(window);
         self.draw_landing_pad(window);
         self.draw_asteroids(window);
+        self.draw_text(window);
         if self.pod_dropping {
             self.draw_pod(window);
         }
