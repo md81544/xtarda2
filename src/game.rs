@@ -225,6 +225,10 @@ impl Game {
         }
         if self.pod_status == PodStatus::Dropping {
             self.check_for_pod_landing();
+            if self.check_for_pod_collision() {
+                // TODO explosion
+                self.pod_status = PodStatus::Inactive;
+            }
             self.pod_pos_y += 5.0;
         }
     }
@@ -238,6 +242,20 @@ impl Game {
         {
             self.pod_status = PodStatus::Landed;
         }
+    }
+
+    fn check_for_pod_collision(&mut self) -> bool {
+        for asteroid in &self.asteroids {
+            // This is very rudimentary, TODO improve bounding box
+            if self.pod_pos_x >= asteroid.x_pos as f32
+                && self.pod_pos_x <= asteroid.x_pos as f32 + 120.0
+                && self.pod_pos_y >= asteroid.height as f32
+                && self.pod_pos_y <= asteroid.height as f32 + 30.0
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     pub fn set_level(&mut self, level: u8) {
