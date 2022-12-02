@@ -106,28 +106,29 @@ impl Game {
     }
 
     fn draw_ground(&mut self, window: &mut RenderWindow) {
+        let ground_colour = 64;
         let mut ground =
             RectangleShape::with_size(Vector2f::new(self.window_width as f32, self.ground_height));
-        ground.set_fill_color(Color::rgb(0, 128, 0));
+        ground.set_fill_color(Color::rgb(0, ground_colour, 0));
         ground.set_position(Vector2f::new(0.0, self.window_height as f32 - 40.0));
         window.draw(&ground);
         let mut hill1 = CircleShape::new(150.0, 3);
-        hill1.set_fill_color(Color::rgb(0, 128, 0));
+        hill1.set_fill_color(Color::rgb(0, ground_colour, 0));
         hill1.set_position(Vector2f::new(0.0, self.window_height as f32 - 150.0));
         window.draw(&hill1);
         let mut hill2 = CircleShape::new(300.0, 3);
-        hill2.set_fill_color(Color::rgb(0, 128, 0));
+        hill2.set_fill_color(Color::rgb(0, ground_colour, 0));
         hill2.set_position(Vector2f::new(-300.0, self.window_height as f32 - 300.0));
         window.draw(&hill2);
         let mut hill3 = CircleShape::new(240.0, 3);
-        hill3.set_fill_color(Color::rgb(0, 128, 0));
+        hill3.set_fill_color(Color::rgb(0, ground_colour, 0));
         hill3.set_position(Vector2f::new(
             self.window_width as f32 - 400.0,
             self.window_height as f32 - 240.0,
         ));
         window.draw(&hill3);
         let mut hill4 = CircleShape::new(340.0, 3);
-        hill4.set_fill_color(Color::rgb(0, 128, 0));
+        hill4.set_fill_color(Color::rgb(0, ground_colour, 0));
         hill4.set_position(Vector2f::new(
             self.window_width as f32 - 370.0,
             self.window_height as f32 - 340.0,
@@ -261,16 +262,16 @@ impl Game {
     pub fn set_level(&mut self, level: u8) {
         self.level = level;
         self.asteroids.clear();
-        let num_asteroids = 5 + 2 * level;
+        let num_asteroids = 20 + 2 * level;
         let mut rng = rand::thread_rng();
         for n in 0..num_asteroids {
-            let max_speed = (4 + level * 2) as i32;
+            let max_speed = (5 + level * 2) as i32;
             let mut speed = rng.gen_range(-max_speed..max_speed);
             if speed == 0 {
                 speed = max_speed;
             }
             let asteroid = Asteroid {
-                height: 180 + 50 * n as u32,
+                height: 180 + 25 * n as u32,
                 x_pos: rng.gen_range(50..self.window_width as i32 - 50),
                 speed: speed,
                 r1: rng.gen_range(20.0..40.0),
