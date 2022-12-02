@@ -26,9 +26,13 @@ fn main() {
     window.set_vertical_sync_enabled(true);
     window.set_position(Vector2i::new(50, 50));
     window.set_mouse_cursor_visible(false);
+    window.set_key_repeat_enabled(false);
 
     let mut game = game::Game::new(window_width, window_height);
     game.set_level(1);
+
+    let mut moving_left = false;
+    let mut moving_right = false;
 
     // Main Loop
     while window.is_open() {
@@ -45,10 +49,34 @@ fn main() {
                     Key::Down => {
                         game.drop_pod();
                     }
+                    Key::Space => {
+                        game.drop_pod();
+                    }
+                    Key::Left => {
+                        moving_left = false;
+                    }
+                    Key::Right => {
+                        moving_right = false;
+                    }
+                    _ => {}
+                },
+                Event::KeyPressed { code, .. } => match code {
+                    Key::Left => {
+                        moving_left = true;
+                    }
+                    Key::Right => {
+                        moving_right = true;
+                    }
                     _ => {}
                 },
                 _ => {} // ignore other events
             }
+        }
+        if moving_right {
+            game.pod_manoeuvre(game::PodMove::Right);
+        }
+        if moving_left {
+            game.pod_manoeuvre(game::PodMove::Left);
         }
         window.clear(Color::BLACK);
         game.next_frame();

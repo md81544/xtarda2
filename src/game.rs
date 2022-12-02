@@ -14,6 +14,19 @@ struct Asteroid {
     r3: f32,
 }
 
+#[derive(Eq, PartialEq)]
+enum PodStatus {
+    Inactive,
+    Dropping,
+    Landed,
+    _Ascending,
+}
+
+pub enum PodMove {
+    Left,
+    Right,
+}
+
 pub struct Game {
     level: u8,
     window_width: u32,
@@ -25,8 +38,13 @@ pub struct Game {
     asteroids: Vec<Asteroid>,
     pod_pos_x: f32,
     pod_pos_y: f32,
-    pod_dropping: bool,
     font: sfml::SfBox<Font>,
+    ground_height: f32,
+    landing_pad_height: f32,
+    landing_pad_width: f32,
+    landing_pad_x: f32,
+    pod_size: f32,
+    pod_status: PodStatus,
 }
 
 impl Game {
@@ -43,6 +61,7 @@ impl Game {
             };
             font_path = "../".to_string() + &font_path;
         };
+        let pad_width = 250.0;
         Game {
             level: 1,
             window_width,
@@ -54,8 +73,13 @@ impl Game {
             asteroids: Vec::new(),
             pod_pos_x: 0.0,
             pod_pos_y: 100.0,
-            pod_dropping: false,
             font,
+            ground_height: 40.0,
+            landing_pad_height: 20.0,
+            landing_pad_width: pad_width,
+            landing_pad_x: window_width as f32 / 2.0 - (pad_width / 2.0),
+            pod_size: 20.0,
+            pod_status: PodStatus::Inactive,
         }
     }
 
@@ -82,7 +106,8 @@ impl Game {
     }
 
     fn draw_ground(&mut self, window: &mut RenderWindow) {
-        let mut ground = RectangleShape::with_size(Vector2f::new(self.window_width as f32, 40.0));
+        let mut ground =
+            RectangleShape::with_size(Vector2f::new(self.window_width as f32, self.ground_height));
         ground.set_fill_color(Color::rgb(0, 128, 0));
         ground.set_position(Vector2f::new(0.0, self.window_height as f32 - 40.0));
         window.draw(&ground);
@@ -111,12 +136,14 @@ impl Game {
     }
 
     fn draw_landing_pad(&mut self, window: &mut RenderWindow) {
-        let pad_width = 250.0;
-        let mut pad = RectangleShape::with_size(Vector2f::new(pad_width, 20.0));
+        let mut pad = RectangleShape::with_size(Vector2f::new(
+            self.landing_pad_width,
+            self.landing_pad_height,
+        ));
         pad.set_fill_color(Color::rgb(0, 200, 0));
         pad.set_position(Vector2f::new(
-            self.window_width as f32 / 2.0 - (pad_width / 2.0),
-            self.window_height as f32 - 60.0,
+            self.landing_pad_x,
+            self.window_height as f32 - self.ground_height - self.landing_pad_height,
         ));
         window.draw(&pad);
     }
@@ -148,14 +175,21 @@ impl Game {
     }
 
     fn draw_pod(&mut self, window: &mut RenderWindow) {
-        let mut pod = RectangleShape::with_size(Vector2f::new(20.0, 20.0));
+        let mut pod = RectangleShape::with_size(Vector2f::new(self.pod_size, self.pod_size));
         pod.set_fill_color(Color::rgb(0, 255, 0));
         pod.set_position(Vector2f::new(self.pod_pos_x, self.pod_pos_y));
         window.draw(&pod);
     }
 
     fn draw_text(&mut self, window: &mut RenderWindow) {
-        let mut text = Text::new("Xtarda Rescue", &self.font, 30);
+        let mut text = Text::new(
+            &format!(
+                "Xtarda Rescue!   Rescued: {} / {}   Pods Remaining: {}",
+                0, 10, 3
+            ),
+            &self.font,
+            30,
+        );
         text.set_position(Vector2f::new(20.0, 20.0));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
@@ -167,7 +201,7 @@ impl Game {
         self.draw_landing_pad(window);
         self.draw_asteroids(window);
         self.draw_text(window);
-        if self.pod_dropping {
+        if self.pod_status == PodStatus::Dropping {
             self.draw_pod(window);
         }
     }
@@ -189,11 +223,20 @@ impl Game {
                 asteroid.x_pos = self.window_width as i32;
             }
         }
-        if self.pod_dropping {
+        if self.pod_status == PodStatus::Dropping {
+            self.check_for_pod_landing();
             self.pod_pos_y += 5.0;
-            if self.pod_pos_y > self.window_height as f32 {
-                self.pod_dropping = false;
-            }
+        }
+    }
+
+    fn check_for_pod_landing(&mut self) {
+        if self.pod_pos_y
+            > self.window_height as f32
+                - self.ground_height
+                - self.landing_pad_height
+                - self.pod_size
+        {
+            self.pod_status = PodStatus::Landed;
         }
     }
 
@@ -221,11 +264,22 @@ impl Game {
     }
 
     pub fn drop_pod(&mut self) {
-        if self.pod_dropping == true {
+        if self.pod_status == PodStatus::Dropping {
             return;
         };
-        self.pod_dropping = true;
+        self.pod_status = PodStatus::Dropping;
         self.pod_pos_x = self.mothership_pos_x + 40.0;
         self.pod_pos_y = self.mothership_pos_y + 30.0;
+    }
+
+    pub fn pod_manoeuvre(&mut self, direction: PodMove) {
+        match direction {
+            PodMove::Left => {
+                self.pod_pos_x -= 4.0;
+            }
+            PodMove::Right => {
+                self.pod_pos_x += 4.0;
+            }
+        }
     }
 }
