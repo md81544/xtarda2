@@ -20,6 +20,7 @@ enum PodStatus {
     Dropping,
     Landed,
     _Ascending,
+    Exploding,
 }
 
 pub enum PodMove {
@@ -202,7 +203,7 @@ impl Game {
         self.draw_landing_pad(window);
         self.draw_asteroids(window);
         self.draw_text(window);
-        if self.pod_status == PodStatus::Dropping {
+        if self.pod_status != PodStatus::Inactive {
             self.draw_pod(window);
         }
     }
@@ -225,24 +226,38 @@ impl Game {
             }
         }
         if self.pod_status == PodStatus::Dropping {
-            self.check_for_pod_landing();
-            if self.check_for_pod_collision() {
-                // TODO explosion
-                self.pod_status = PodStatus::Inactive;
+            if !self.check_for_pod_landing() {
+                if self.check_for_pod_collision() {
+                    // TODO explosion
+                    self.pod_status = PodStatus::Exploding;
+                }
+                self.pod_pos_y += 5.0;
             }
-            self.pod_pos_y += 5.0;
         }
     }
 
-    fn check_for_pod_landing(&mut self) {
+    fn check_for_pod_landing(&mut self) -> bool {
         if self.pod_pos_y
-            > self.window_height as f32
+            >= self.window_height as f32
                 - self.ground_height
                 - self.landing_pad_height
                 - self.pod_size
+            && self.pod_pos_x >= self.landing_pad_x
+            && self.pod_pos_x <= self.landing_pad_x + self.landing_pad_width - self.pod_size
         {
+            self.pod_pos_y = self.window_height as f32
+                - self.ground_height
+                - self.landing_pad_height
+                - self.pod_size;
             self.pod_status = PodStatus::Landed;
+            return true;
         }
+        if self.pod_pos_y >= self.window_height as f32 - self.ground_height - self.pod_size {
+            self.pod_pos_y = self.window_height as f32 - self.ground_height - self.pod_size;
+            self.pod_status = PodStatus::Exploding;
+            return true;
+        }
+        false
     }
 
     fn check_for_pod_collision(&mut self) -> bool {
@@ -292,12 +307,14 @@ impl Game {
     }
 
     pub fn pod_manoeuvre(&mut self, direction: PodMove) {
-        match direction {
-            PodMove::Left => {
-                self.pod_pos_x -= 4.0;
-            }
-            PodMove::Right => {
-                self.pod_pos_x += 4.0;
+        if self.pod_status == PodStatus::Dropping || self.pod_status == PodStatus::_Ascending {
+            match direction {
+                PodMove::Left => {
+                    self.pod_pos_x -= 4.0;
+                }
+                PodMove::Right => {
+                    self.pod_pos_x += 4.0;
+                }
             }
         }
     }
