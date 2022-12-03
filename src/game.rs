@@ -1,4 +1,5 @@
 use rand::Rng;
+use sfml::audio::{Sound, SoundBuffer};
 use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
     Transformable,
@@ -46,22 +47,27 @@ pub struct Game {
     landing_pad_x: f32,
     pod_size: f32,
     pod_status: PodStatus,
+    pod_explosion_timer: u8,
 }
 
 impl Game {
     pub fn new(window_width: u32, window_height: u32) -> Game {
-        let mut font_path = "res/zx-spectrum.ttf".to_string();
+        let mut resource_path = "res".to_string();
         let mut count = 0;
         let font = loop {
-            if let Some(result) = Font::from_file(&font_path) {
+            let font_file = resource_path.to_string() + "/zx-spectrum.ttf";
+            if let Some(result) = Font::from_file(&font_file) {
                 break result;
             }
             count += 1;
             if count > 3 {
                 panic!("Could not find font file")
             };
-            font_path = "../".to_string() + &font_path;
+            resource_path = "../".to_string() + &resource_path;
         };
+        let explosion_file = resource_path.to_string() + "/explosion.wav";
+        let _explosion_buffer = SoundBuffer::from_file(&explosion_file).unwrap();
+        let _explosion_sound = Sound::new();
         let pad_width = 250.0;
         Game {
             level: 1,
@@ -81,6 +87,7 @@ impl Game {
             landing_pad_x: window_width as f32 / 2.0 - (pad_width / 2.0),
             pod_size: 20.0,
             pod_status: PodStatus::Inactive,
+            pod_explosion_timer: 0,
         }
     }
 
@@ -107,34 +114,35 @@ impl Game {
     }
 
     fn draw_ground(&mut self, window: &mut RenderWindow) {
-        let ground_colour = 64;
-        let mut ground =
-            RectangleShape::with_size(Vector2f::new(self.window_width as f32, self.ground_height));
-        ground.set_fill_color(Color::rgb(0, ground_colour, 0));
-        ground.set_position(Vector2f::new(0.0, self.window_height as f32 - 40.0));
-        window.draw(&ground);
+        let ground_colour = 96;
+        let hill_colour = 64;
         let mut hill1 = CircleShape::new(150.0, 3);
-        hill1.set_fill_color(Color::rgb(0, ground_colour, 0));
+        hill1.set_fill_color(Color::rgb(0, hill_colour, 0));
         hill1.set_position(Vector2f::new(0.0, self.window_height as f32 - 150.0));
         window.draw(&hill1);
         let mut hill2 = CircleShape::new(300.0, 3);
-        hill2.set_fill_color(Color::rgb(0, ground_colour, 0));
+        hill2.set_fill_color(Color::rgb(0, hill_colour, 0));
         hill2.set_position(Vector2f::new(-300.0, self.window_height as f32 - 300.0));
         window.draw(&hill2);
         let mut hill3 = CircleShape::new(240.0, 3);
-        hill3.set_fill_color(Color::rgb(0, ground_colour, 0));
+        hill3.set_fill_color(Color::rgb(0, hill_colour, 0));
         hill3.set_position(Vector2f::new(
             self.window_width as f32 - 400.0,
             self.window_height as f32 - 240.0,
         ));
         window.draw(&hill3);
         let mut hill4 = CircleShape::new(340.0, 3);
-        hill4.set_fill_color(Color::rgb(0, ground_colour, 0));
+        hill4.set_fill_color(Color::rgb(0, hill_colour, 0));
         hill4.set_position(Vector2f::new(
             self.window_width as f32 - 370.0,
             self.window_height as f32 - 340.0,
         ));
         window.draw(&hill4);
+        let mut ground =
+            RectangleShape::with_size(Vector2f::new(self.window_width as f32, self.ground_height));
+        ground.set_fill_color(Color::rgb(0, ground_colour, 0));
+        ground.set_position(Vector2f::new(0.0, self.window_height as f32 - 40.0));
+        window.draw(&ground);
     }
 
     fn draw_landing_pad(&mut self, window: &mut RenderWindow) {
@@ -177,6 +185,23 @@ impl Game {
     }
 
     fn draw_pod(&mut self, window: &mut RenderWindow) {
+        if self.pod_status == PodStatus::Exploding {
+            let mut rng = rand::thread_rng();
+            let radius = rng.gen_range(20.0..100.0);
+            let mut explosion = CircleShape::new(radius, 32);
+            explosion.set_fill_color(Color::rgb(0, rng.gen_range(150..255), 0));
+            explosion.set_position(Vector2f::new(
+                self.pod_pos_x as f32 - radius + self.pod_size / 2.0,
+                self.pod_pos_y as f32 - radius + self.pod_size / 2.0,
+            ));
+            window.draw(&explosion);
+            self.pod_explosion_timer += 1;
+            if self.pod_explosion_timer > 20 {
+                self.pod_explosion_timer = 0;
+                self.pod_status = PodStatus::Inactive;
+            }
+            return;
+        }
         let mut pod = RectangleShape::with_size(Vector2f::new(self.pod_size, self.pod_size));
         pod.set_fill_color(Color::rgb(0, 255, 0));
         pod.set_position(Vector2f::new(self.pod_pos_x, self.pod_pos_y));
@@ -268,6 +293,7 @@ impl Game {
                 && self.pod_pos_y >= asteroid.height as f32
                 && self.pod_pos_y <= asteroid.height as f32 + 30.0
             {
+                // TODO self.explosion_sound.play();
                 return true;
             }
         }
