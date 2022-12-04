@@ -5,6 +5,7 @@ use sfml::graphics::{
     Transformable,
 };
 use sfml::system::Vector2f;
+use sfml::SfBox;
 
 struct Asteroid {
     height: u32,
@@ -40,7 +41,7 @@ pub struct Game {
     asteroids: Vec<Asteroid>,
     pod_pos_x: f32,
     pod_pos_y: f32,
-    font: sfml::SfBox<Font>,
+    font: SfBox<Font>,
     ground_height: f32,
     landing_pad_height: f32,
     landing_pad_width: f32,
@@ -48,6 +49,7 @@ pub struct Game {
     pod_size: f32,
     pod_status: PodStatus,
     pod_explosion_timer: u8,
+    explosion: SfBox<SoundBuffer>,
 }
 
 impl Game {
@@ -66,8 +68,7 @@ impl Game {
             resource_path = "../".to_string() + &resource_path;
         };
         let explosion_file = resource_path.to_string() + "/explosion.wav";
-        let _explosion_buffer = SoundBuffer::from_file(&explosion_file).unwrap();
-        let _explosion_sound = Sound::new();
+        let explosion = SoundBuffer::from_file(&explosion_file).unwrap();
         let pad_width = 250.0;
         Game {
             level: 1,
@@ -88,6 +89,7 @@ impl Game {
             pod_size: 20.0,
             pod_status: PodStatus::Inactive,
             pod_explosion_timer: 0,
+            explosion,
         }
     }
 
@@ -160,20 +162,6 @@ impl Game {
 
     fn draw_asteroids(&mut self, window: &mut RenderWindow) {
         for asteroid in &self.asteroids {
-            let mut blob1 = CircleShape::new(asteroid.r1, 8);
-            blob1.set_fill_color(Color::rgb(0, 120, 0));
-            blob1.set_position(Vector2f::new(
-                asteroid.x_pos as f32,
-                asteroid.height as f32 + 10.0,
-            ));
-            window.draw(&blob1);
-            let mut blob2 = CircleShape::new(asteroid.r2, 8);
-            blob2.set_fill_color(Color::rgb(0, 100, 0));
-            blob2.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + 20.0,
-                asteroid.height as f32,
-            ));
-            window.draw(&blob2);
             let mut blob3 = CircleShape::new(asteroid.r3, 8);
             blob3.set_fill_color(Color::rgb(0, 80, 0));
             blob3.set_position(Vector2f::new(
@@ -181,6 +169,20 @@ impl Game {
                 asteroid.height as f32 + 10.0,
             ));
             window.draw(&blob3);
+            let mut blob2 = CircleShape::new(asteroid.r2, 8);
+            blob2.set_fill_color(Color::rgb(0, 100, 0));
+            blob2.set_position(Vector2f::new(
+                asteroid.x_pos as f32 + 20.0,
+                asteroid.height as f32,
+            ));
+            window.draw(&blob2);
+            let mut blob1 = CircleShape::new(asteroid.r1, 8);
+            blob1.set_fill_color(Color::rgb(0, 120, 0));
+            blob1.set_position(Vector2f::new(
+                asteroid.x_pos as f32,
+                asteroid.height as f32 + 10.0,
+            ));
+            window.draw(&blob1);
         }
     }
 
@@ -253,7 +255,9 @@ impl Game {
         if self.pod_status == PodStatus::Dropping {
             if !self.check_for_pod_landing() {
                 if self.check_for_pod_collision() {
-                    // TODO explosion
+                    let mut sound = Sound::with_buffer(&self.explosion);
+                    sound.play(); // Goes out of scope, sound stops
+                                  // TODO self.explosion_sound.play();
                     self.pod_status = PodStatus::Exploding;
                 }
                 self.pod_pos_y += 5.0;
