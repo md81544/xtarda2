@@ -49,7 +49,6 @@ pub struct Game {
     pod_size: f32,
     pod_status: PodStatus,
     pod_explosion_timer: u8,
-    explosion: SfBox<SoundBuffer>,
 }
 
 impl Game {
@@ -67,8 +66,6 @@ impl Game {
             };
             resource_path = "../".to_string() + &resource_path;
         };
-        let explosion_file = resource_path.to_string() + "/explosion.wav";
-        let explosion = SoundBuffer::from_file(&explosion_file).unwrap();
         let pad_width = 250.0;
         Game {
             level: 1,
@@ -89,7 +86,6 @@ impl Game {
             pod_size: 20.0,
             pod_status: PodStatus::Inactive,
             pod_explosion_timer: 0,
-            explosion,
         }
     }
 
@@ -255,14 +251,15 @@ impl Game {
         if self.pod_status == PodStatus::Dropping {
             if !self.check_for_pod_landing() {
                 if self.check_for_pod_collision() {
-                    let mut sound = Sound::with_buffer(&self.explosion);
-                    sound.play(); // Goes out of scope, sound stops
-                                  // TODO self.explosion_sound.play();
                     self.pod_status = PodStatus::Exploding;
                 }
                 self.pod_pos_y += 5.0;
             }
         }
+    }
+
+    pub fn is_pod_exploding(&self) -> bool {
+        return self.pod_status == PodStatus::Exploding;
     }
 
     fn check_for_pod_landing(&mut self) -> bool {
@@ -297,7 +294,6 @@ impl Game {
                 && self.pod_pos_y >= asteroid.height as f32
                 && self.pod_pos_y <= asteroid.height as f32 + 30.0
             {
-                // TODO self.explosion_sound.play();
                 return true;
             }
         }

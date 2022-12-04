@@ -27,6 +27,9 @@ fn main() {
     window.set_position(Vector2i::new(50, 50));
     window.set_mouse_cursor_visible(false);
     window.set_key_repeat_enabled(false);
+    let explosion_file = "res/explosion.wav";
+    let explosion = sfml::audio::SoundBuffer::from_file(&explosion_file).unwrap();
+    let mut explosion_sound = sfml::audio::Sound::with_buffer(&explosion);
 
     let mut game = game::Game::new(window_width, window_height);
     game.set_level(1);
@@ -81,6 +84,11 @@ fn main() {
         window.clear(Color::BLACK);
         game.next_frame();
         game.draw_screen(&mut window);
+        if game.is_pod_exploding() {
+            if explosion_sound.status() != sfml::audio::SoundStatus::PLAYING {
+                explosion_sound.play();
+            }
+        }
         window.display();
     }
 }
