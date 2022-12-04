@@ -1,5 +1,4 @@
 use rand::Rng;
-use sfml::audio::{Sound, SoundBuffer};
 use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
     Transformable,
@@ -145,6 +144,16 @@ impl Game {
         window.draw(&pad);
     }
 
+    fn draw_moonbase(&mut self, window: &mut RenderWindow) {
+        let mut moonbase = CircleShape::new(100.0, 32);
+        moonbase.set_fill_color(Color::rgb(0, 110, 0));
+        moonbase.set_position(Vector2f::new(
+            self.window_width as f32 * 0.75,
+            self.window_height as f32 - 100.0 - self.ground_height,
+        ));
+        window.draw(&moonbase);
+    }
+
     fn draw_asteroids(&mut self, window: &mut RenderWindow) {
         for asteroid in &self.asteroids {
             let mut blob3 = CircleShape::new(asteroid.r3, 8);
@@ -174,9 +183,10 @@ impl Game {
     fn draw_pod(&mut self, window: &mut RenderWindow) {
         if self.pod_status == PodStatus::Exploding {
             let mut rng = rand::thread_rng();
-            let radius = rng.gen_range(20.0..100.0);
+            let radius = rng.gen_range(20.0..200.0);
             let mut explosion = CircleShape::new(radius, 32);
-            explosion.set_fill_color(Color::rgb(0, rng.gen_range(150..255), 0));
+            let lum = rng.gen_range(200..255);
+            explosion.set_fill_color(Color::rgb(0, lum, 0));
             explosion.set_position(Vector2f::new(
                 self.pod_pos_x as f32 - radius + self.pod_size / 2.0,
                 self.pod_pos_y as f32 - radius + self.pod_size / 2.0,
@@ -211,6 +221,7 @@ impl Game {
 
     pub fn draw_screen(&mut self, window: &mut RenderWindow) {
         self.draw_mothership(window);
+        self.draw_moonbase(window);
         self.draw_ground(window);
         self.draw_landing_pad(window);
         self.draw_asteroids(window);
