@@ -23,6 +23,7 @@ enum PodStatus {
     Landed,
     _Ascending,
     Exploding,
+    ReadyForTakeOff,
 }
 
 pub enum PodMove {
@@ -52,21 +53,9 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(window_width: u32, window_height: u32) -> Game {
-        let mut resource_path = "res".to_string();
-        let mut count = 0;
-        let font = loop {
-            let font_file = resource_path.to_string() + "/zx-spectrum.ttf";
-            if let Some(result) = Font::from_file(&font_file) {
-                break result;
-            }
-            count += 1;
-            if count > 3 {
-                panic!("Could not find font file")
-            };
-            resource_path = "../".to_string() + &resource_path;
-        };
+    pub fn new(window_width: u32, window_height: u32, resource_path: String) -> Game {
         let pad_width = 250.0;
+        let font = Font::from_file(&(resource_path + "/zx-spectrum.ttf")).unwrap();
         Game {
             level: 1,
             window_width,
@@ -258,6 +247,10 @@ impl Game {
         }
     }
 
+    pub fn is_pod_landed(&self) -> bool {
+        return self.pod_status == PodStatus::Landed;
+    }
+
     pub fn is_pod_exploding(&self) -> bool {
         return self.pod_status == PodStatus::Exploding;
     }
@@ -289,7 +282,8 @@ impl Game {
     fn check_for_pod_collision(&mut self) -> bool {
         for asteroid in &self.asteroids {
             // This is very rudimentary, TODO improve bounding box
-            if self.pod_pos_x >= asteroid.x_pos as f32
+            // But having said that, it seems to work well :)
+            if self.pod_pos_x >= asteroid.x_pos as f32 - self.pod_size
                 && self.pod_pos_x <= asteroid.x_pos as f32 + 120.0
                 && self.pod_pos_y >= asteroid.height as f32
                 && self.pod_pos_y <= asteroid.height as f32 + 30.0
@@ -330,6 +324,10 @@ impl Game {
         self.pod_status = PodStatus::Dropping;
         self.pod_pos_x = self.mothership_pos_x + 40.0;
         self.pod_pos_y = self.mothership_pos_y + 30.0;
+    }
+
+    pub fn set_pod_ready_for_take_off(&mut self) {
+        self.pod_status = PodStatus::ReadyForTakeOff;
     }
 
     pub fn pod_manoeuvre(&mut self, direction: PodMove) {
