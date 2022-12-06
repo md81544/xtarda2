@@ -324,7 +324,8 @@ impl Game {
                 speed = max_speed;
             }
             let asteroid = Asteroid {
-                height: 180 + 25 * n as u32,
+                height: ((self.window_height as f32 * 0.144)
+                    + (self.window_height as f32 * 0.02) * n as f32) as u32,
                 x_pos: rng.gen_range(50..self.window_width as i32 - 50),
                 speed: speed,
                 r1: rng.gen_range(20.0..40.0),
