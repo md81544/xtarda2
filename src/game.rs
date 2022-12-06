@@ -272,8 +272,8 @@ impl Game {
                 - self.ground_height
                 - self.landing_pad_height
                 - self.pod_size
-            && self.pod_pos_x >= self.landing_pad_x
-            && self.pod_pos_x <= self.landing_pad_x + self.landing_pad_width - self.pod_size
+            && self.pod_pos_x >= self.landing_pad_x - self.pod_size / 2.0
+            && self.pod_pos_x <= self.landing_pad_x + self.landing_pad_width - self.pod_size / 2.0
         {
             self.pod_pos_y = self.window_height as f32
                 - self.ground_height
