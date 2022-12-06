@@ -106,10 +106,9 @@ fn main() {
             success_sound.play();
             game.set_pod_ready_for_take_off();
         }
-        if game.is_pod_exploding() {
-            if explosion_sound.status() != sfml::audio::SoundStatus::PLAYING {
-                explosion_sound.play();
-            }
+        if game.is_pod_exploding() && game.pod_new_explosion == true {
+            explosion_sound.play();
+            game.pod_new_explosion = false;
         }
         window.display();
     }

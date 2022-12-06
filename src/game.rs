@@ -49,6 +49,7 @@ pub struct Game {
     pod_size: f32,
     pod_status: PodStatus,
     pod_explosion_timer: u8,
+    pub pod_new_explosion: bool,
 }
 
 impl Game {
@@ -74,6 +75,7 @@ impl Game {
             pod_size: 20.0,
             pod_status: PodStatus::Inactive,
             pod_explosion_timer: 0,
+            pod_new_explosion: true,
         }
     }
 
@@ -251,11 +253,16 @@ impl Game {
         if self.pod_status == PodStatus::Dropping {
             if !self.check_for_pod_landing() {
                 if self.check_for_pod_collision() {
-                    self.pod_status = PodStatus::Exploding;
+                    self.explode_pod();
                 }
                 self.pod_pos_y += 5.0;
             }
         }
+    }
+
+    fn explode_pod(&mut self) {
+        self.pod_status = PodStatus::Exploding;
+        self.pod_new_explosion = true;
     }
 
     pub fn is_pod_landed(&self) -> bool {
@@ -284,7 +291,7 @@ impl Game {
         }
         if self.pod_pos_y >= self.window_height as f32 - self.ground_height - self.pod_size {
             self.pod_pos_y = self.window_height as f32 - self.ground_height - self.pod_size;
-            self.pod_status = PodStatus::Exploding;
+            self.explode_pod();
             return true;
         }
         false
