@@ -20,7 +20,7 @@ enum PodStatus {
     Inactive,
     Dropping,
     Landed,
-    _Ascending,
+    Ascending,
     Exploding,
     ReadyForTakeOff,
 }
@@ -258,6 +258,14 @@ impl Game {
                 self.pod_pos_y += 5.0;
             }
         }
+        if self.pod_status == PodStatus::Ascending {
+            if !self.check_for_pod_docking() {
+                if self.check_for_pod_collision() {
+                    self.explode_pod();
+                }
+                self.pod_pos_y -= 5.0;
+            }
+        }
     }
 
     fn explode_pod(&mut self) {
@@ -287,6 +295,7 @@ impl Game {
                 - self.landing_pad_height
                 - self.pod_size;
             self.pod_status = PodStatus::Landed;
+            // TODO start rescue animation
             return true;
         }
         if self.pod_pos_y >= self.window_height as f32 - self.ground_height - self.pod_size {
@@ -295,6 +304,15 @@ impl Game {
             return true;
         }
         false
+    }
+
+    fn check_for_pod_docking(&mut self) -> bool {
+        if self.pod_pos_y <= self.mothership_pos_y {
+            // TODO: some form of celebratory docking animation
+            self.pod_status = PodStatus::Inactive;
+            return true;
+        }
+        return false;
     }
 
     fn check_for_pod_collision(&mut self) -> bool {
@@ -337,7 +355,7 @@ impl Game {
     }
 
     pub fn drop_pod(&mut self) {
-        if self.pod_status == PodStatus::Dropping {
+        if self.pod_status == PodStatus::Dropping || self.pod_status == PodStatus::Landed {
             return;
         };
         self.pod_status = PodStatus::Dropping;
@@ -345,12 +363,19 @@ impl Game {
         self.pod_pos_y = self.mothership_pos_y + 30.0;
     }
 
+    pub fn launch_pod(&mut self) {
+        if self.pod_status != PodStatus::ReadyForTakeOff {
+            return;
+        }
+        self.pod_status = PodStatus::Ascending;
+    }
+
     pub fn set_pod_ready_for_take_off(&mut self) {
         self.pod_status = PodStatus::ReadyForTakeOff;
     }
 
     pub fn pod_manoeuvre(&mut self, direction: PodMove) {
-        if self.pod_status == PodStatus::Dropping || self.pod_status == PodStatus::_Ascending {
+        if self.pod_status == PodStatus::Dropping || self.pod_status == PodStatus::Ascending {
             match direction {
                 PodMove::Left => {
                     self.pod_pos_x -= 4.0;

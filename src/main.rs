@@ -70,6 +70,9 @@ fn main() {
                     Key::Down => {
                         game.drop_pod();
                     }
+                    Key::Up => {
+                        game.launch_pod();
+                    }
                     Key::Space => {
                         game.drop_pod();
                     }
