@@ -214,7 +214,7 @@ impl Game {
                 0, 10, 3
             ),
             &self.font,
-            30,
+            (self.window_width as f32 * 0.015625) as u32,
         );
         text.set_position(Vector2f::new(20.0, 20.0));
         text.set_fill_color(Color::rgb(0, 200, 0));
