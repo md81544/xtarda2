@@ -45,9 +45,12 @@ fn main() {
     let explosion =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/explosion.wav")).unwrap();
     let mut explosion_sound = sfml::audio::Sound::with_buffer(&explosion);
-    let success =
+    let landed =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/success.wav")).unwrap();
-    let mut success_sound = sfml::audio::Sound::with_buffer(&success);
+    let mut landed_sound = sfml::audio::Sound::with_buffer(&landed);
+    let docked =
+        sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/docked.wav")).unwrap();
+    let mut docked_sound = sfml::audio::Sound::with_buffer(&docked);
 
     let mut game = game::Game::new(window_width, window_height, resource_path);
     game.set_level(1);
@@ -105,14 +108,20 @@ fn main() {
         window.clear(Color::BLACK);
         game.next_frame();
         game.draw_screen(&mut window);
-        if game.is_pod_landed() {
-            success_sound.play();
-            game.set_pod_ready_for_take_off();
+        for sound in &game.sounds_to_play {
+            match sound {
+                game::Sounds::Docked => {
+                    docked_sound.play();
+                }
+                game::Sounds::Explosion => {
+                    explosion_sound.play();
+                }
+                game::Sounds::Landed => {
+                    landed_sound.play();
+                }
+            }
         }
-        if game.is_pod_exploding() && game.pod_new_explosion == true {
-            explosion_sound.play();
-            game.pod_new_explosion = false;
-        }
+        game.sounds_to_play.clear();
         window.display();
     }
 }

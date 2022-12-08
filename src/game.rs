@@ -30,6 +30,12 @@ pub enum PodMove {
     Right,
 }
 
+pub enum Sounds {
+    Explosion,
+    Landed,
+    Docked,
+}
+
 pub struct Game {
     level: u8,
     window_width: u32,
@@ -49,7 +55,7 @@ pub struct Game {
     pod_size: f32,
     pod_status: PodStatus,
     pod_explosion_timer: u8,
-    pub pod_new_explosion: bool,
+    pub sounds_to_play: Vec<Sounds>,
 }
 
 impl Game {
@@ -75,7 +81,7 @@ impl Game {
             pod_size: 20.0,
             pod_status: PodStatus::Inactive,
             pod_explosion_timer: 0,
-            pod_new_explosion: true,
+            sounds_to_play: vec![],
         }
     }
 
@@ -270,15 +276,7 @@ impl Game {
 
     fn explode_pod(&mut self) {
         self.pod_status = PodStatus::Exploding;
-        self.pod_new_explosion = true;
-    }
-
-    pub fn is_pod_landed(&self) -> bool {
-        return self.pod_status == PodStatus::Landed;
-    }
-
-    pub fn is_pod_exploding(&self) -> bool {
-        return self.pod_status == PodStatus::Exploding;
+        self.sounds_to_play.push(Sounds::Explosion);
     }
 
     fn check_for_pod_landing(&mut self) -> bool {
@@ -294,7 +292,8 @@ impl Game {
                 - self.ground_height
                 - self.landing_pad_height
                 - self.pod_size;
-            self.pod_status = PodStatus::Landed;
+            self.pod_status = PodStatus::ReadyForTakeOff;
+            self.sounds_to_play.push(Sounds::Landed);
             // TODO start rescue animation
             return true;
         }
@@ -309,6 +308,7 @@ impl Game {
     fn check_for_pod_docking(&mut self) -> bool {
         if self.pod_pos_y <= self.mothership_pos_y {
             // TODO: some form of celebratory docking animation
+            self.sounds_to_play.push(Sounds::Docked);
             self.pod_status = PodStatus::Inactive;
             return true;
         }
@@ -355,7 +355,11 @@ impl Game {
     }
 
     pub fn drop_pod(&mut self) {
-        if self.pod_status == PodStatus::Dropping || self.pod_status == PodStatus::Landed {
+        if self.pod_status == PodStatus::Dropping
+            || self.pod_status == PodStatus::Landed
+            || self.pod_status == PodStatus::ReadyForTakeOff
+            || self.pod_status == PodStatus::Ascending
+        {
             return;
         };
         self.pod_status = PodStatus::Dropping;
@@ -368,10 +372,6 @@ impl Game {
             return;
         }
         self.pod_status = PodStatus::Ascending;
-    }
-
-    pub fn set_pod_ready_for_take_off(&mut self) {
-        self.pod_status = PodStatus::ReadyForTakeOff;
     }
 
     pub fn pod_manoeuvre(&mut self, direction: PodMove) {
