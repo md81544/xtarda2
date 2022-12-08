@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use rand::Rng;
 use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
@@ -56,6 +58,8 @@ pub struct Game {
     pod_status: PodStatus,
     pod_explosion_timer: u8,
     pub sounds_to_play: Vec<Sounds>,
+    men_to_rescue: u32,
+    pods_remaining: u32,
 }
 
 impl Game {
@@ -82,6 +86,8 @@ impl Game {
             pod_status: PodStatus::Inactive,
             pod_explosion_timer: 0,
             sounds_to_play: vec![],
+            men_to_rescue: 5,
+            pods_remaining: 15,
         }
     }
 
@@ -216,13 +222,13 @@ impl Game {
     fn draw_text(&mut self, window: &mut RenderWindow) {
         let mut text = Text::new(
             &format!(
-                "Xtarda Rescue!   Rescued: {} / {}   Pods Remaining: {}",
-                0, 10, 3
+                "Level: {}  Terrans to Rescue: {}  Pods Left: {}",
+                self.level, self.men_to_rescue, self.pods_remaining
             ),
             &self.font,
             (self.window_width as f32 * 0.015625) as u32,
         );
-        text.set_position(Vector2f::new(20.0, 20.0));
+        text.set_position(Vector2f::new(150.0, 20.0));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
     }
@@ -277,6 +283,15 @@ impl Game {
     fn explode_pod(&mut self) {
         self.pod_status = PodStatus::Exploding;
         self.sounds_to_play.push(Sounds::Explosion);
+        self.pods_remaining -= 1;
+        if self.pods_remaining == 0 {
+            self.game_over();
+        }
+    }
+
+    fn game_over(&self) {
+        // TODO proper "game over" screen
+        exit(0);
     }
 
     fn check_for_pod_landing(&mut self) -> bool {
@@ -310,6 +325,11 @@ impl Game {
             // TODO: some form of celebratory docking animation
             self.sounds_to_play.push(Sounds::Docked);
             self.pod_status = PodStatus::Inactive;
+            self.men_to_rescue -= 1;
+            if self.men_to_rescue == 0 {
+                // TODO some form of congratulation / next level
+                self.set_level(self.level + 1);
+            }
             return true;
         }
         return false;
@@ -333,10 +353,12 @@ impl Game {
     pub fn set_level(&mut self, level: u8) {
         self.level = level;
         self.asteroids.clear();
-        let num_asteroids = 20 + 2 * level;
+        let num_asteroids = 16 + 2 * level;
         let mut rng = rand::thread_rng();
+        self.men_to_rescue = (level + 1) as u32;
+        self.pods_remaining = self.men_to_rescue * 3;
         for n in 0..num_asteroids {
-            let max_speed = (5 + level * 2) as i32;
+            let max_speed = (4 + level) as i32;
             let mut speed = rng.gen_range(-max_speed..max_speed);
             if speed == 0 {
                 speed = max_speed;
