@@ -336,7 +336,7 @@ impl Game {
     }
 
     fn check_for_pod_collision(&mut self) -> bool {
-        for asteroid in &self.asteroids {
+        for (idx, asteroid) in self.asteroids.iter().enumerate() {
             // This is very rudimentary, TODO improve bounding box
             // But having said that, it seems to work well :)
             if self.pod_pos_x >= asteroid.x_pos as f32 - self.pod_size
@@ -344,6 +344,7 @@ impl Game {
                 && self.pod_pos_y >= asteroid.height as f32
                 && self.pod_pos_y <= asteroid.height as f32 + 30.0
             {
+                self.asteroids.remove(idx);
                 return true;
             }
         }
