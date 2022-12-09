@@ -330,7 +330,7 @@ impl Game {
     }
 
     fn check_for_pod_docking(&mut self) -> bool {
-        if self.pod_pos_y <= self.mothership_pos_y {
+        if self.pod_pos_y <= self.mothership_pos_y + 10.0 {
             if self.pod_pos_x >= self.mothership_pos_x
                 && self.pod_pos_x
                     <= self.mothership_pos_x + self.mothership_width as f32 - self.pod_size
