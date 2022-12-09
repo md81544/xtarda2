@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use sfml::audio::Music;
 use sfml::graphics::{Color, RenderTarget, RenderWindow};
 use sfml::system::Vector2i;
 use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
@@ -51,6 +52,10 @@ fn main() {
     let docked =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/docked.wav")).unwrap();
     let mut docked_sound = sfml::audio::Sound::with_buffer(&docked);
+    let music_file = resource_path.clone() + "/background.wav";
+    let mut music = Music::from_file(&music_file).unwrap();
+    music.set_looping(true);
+    music.play();
 
     let mut game = game::Game::new(window_width, window_height, resource_path);
     game.set_level(1);
