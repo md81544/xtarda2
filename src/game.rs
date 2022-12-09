@@ -25,6 +25,7 @@ enum PodStatus {
     Ascending,
     Exploding,
     ReadyForTakeOff,
+    AutoDock,
 }
 
 pub enum PodMove {
@@ -278,6 +279,14 @@ impl Game {
                 self.pod_pos_y -= 5.0;
             }
         }
+        if self.pod_status == PodStatus::AutoDock {
+            if self.mothership_pos_x < self.pod_pos_x {
+                self.pod_pos_x -= 20.0;
+            } else {
+                self.pod_pos_x += 20.0;
+            }
+            self.check_for_pod_docking();
+        }
     }
 
     fn explode_pod(&mut self) {
@@ -322,15 +331,21 @@ impl Game {
 
     fn check_for_pod_docking(&mut self) -> bool {
         if self.pod_pos_y <= self.mothership_pos_y {
-            // TODO: some form of celebratory docking animation
-            self.sounds_to_play.push(Sounds::Docked);
-            self.pod_status = PodStatus::Inactive;
-            self.men_to_rescue -= 1;
-            if self.men_to_rescue == 0 {
-                // TODO some form of congratulation / next level
-                self.set_level(self.level + 1);
+            if self.pod_pos_x >= self.mothership_pos_x
+                && self.pod_pos_x
+                    <= self.mothership_pos_x + self.mothership_width as f32 - self.pod_size
+            {
+                self.sounds_to_play.push(Sounds::Docked);
+                self.pod_status = PodStatus::Inactive;
+                self.men_to_rescue -= 1;
+                if self.men_to_rescue == 0 {
+                    // TODO some form of congratulation / next level
+                    self.set_level(self.level + 1);
+                }
+                return true;
+            } else {
+                self.pod_status = PodStatus::AutoDock;
             }
-            return true;
         }
         return false;
     }
