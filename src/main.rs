@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::process::exit;
 
 use sfml::audio::Music;
 use sfml::graphics::{Color, RenderTarget, RenderWindow};
@@ -89,6 +90,12 @@ fn main() {
                     }
                     Key::Right => {
                         moving_right = false;
+                    }
+                    Key::Enter => {
+                        if game.game_status == game::GameStatus::GameOver {
+                            exit(0);
+                        }
+                        game.game_status = game::GameStatus::Playing;
                     }
                     _ => {}
                 },

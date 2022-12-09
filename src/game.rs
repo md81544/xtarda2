@@ -1,5 +1,3 @@
-use std::process::exit;
-
 use rand::Rng;
 use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
@@ -39,7 +37,16 @@ pub enum Sounds {
     Docked,
 }
 
+#[derive(Eq, PartialEq)]
+pub enum GameStatus {
+    Playing,
+    SplashScreen,
+    GameOver,
+    NewLevel,
+}
+
 pub struct Game {
+    pub game_status: GameStatus,
     level: u8,
     window_width: u32,
     window_height: u32,
@@ -68,6 +75,7 @@ impl Game {
         let pad_width = 250.0;
         let font = Font::from_file(&(resource_path + "/zx-spectrum.ttf")).unwrap();
         Game {
+            game_status: GameStatus::SplashScreen,
             level: 1,
             window_width,
             window_height,
@@ -233,16 +241,75 @@ impl Game {
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
     }
+    fn draw_splash_screen(&mut self, window: &mut RenderWindow) {
+        let mut text = Text::new(
+            &format!("Xtarda Rescue!"),
+            &self.font,
+            (self.window_width as f32 * 0.05) as u32,
+        );
+        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_fill_color(Color::rgb(0, 200, 0));
+        window.draw(&text);
+        self.draw_press_enter(window);
+    }
+
+    fn draw_new_level_screen(&mut self, window: &mut RenderWindow) {
+        let mut text = Text::new(
+            &format!("Level {}", self.level),
+            &self.font,
+            (self.window_width as f32 * 0.05) as u32,
+        );
+        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_fill_color(Color::rgb(0, 200, 0));
+        window.draw(&text);
+        self.draw_press_enter(window);
+    }
+
+    fn draw_game_over_screen(&mut self, window: &mut RenderWindow) {
+        let mut text = Text::new(
+            &format!("Game Over"),
+            &self.font,
+            (self.window_width as f32 * 0.05) as u32,
+        );
+        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_fill_color(Color::rgb(0, 200, 0));
+        window.draw(&text);
+        self.draw_press_enter(window);
+    }
+
+    fn draw_press_enter(&self, window: &mut RenderWindow) {
+        let mut text = Text::new(
+            &format!("Press ENTER to continue"),
+            &self.font,
+            (self.window_width as f32 * 0.03) as u32,
+        );
+        text.set_position(Vector2f::new(150.0, 500.0));
+        text.set_fill_color(Color::rgb(0, 150, 0));
+        window.draw(&text);
+    }
 
     pub fn draw_screen(&mut self, window: &mut RenderWindow) {
-        self.draw_mothership(window);
-        self.draw_moonbase(window);
-        self.draw_ground(window);
-        self.draw_landing_pad(window);
-        self.draw_asteroids(window);
-        self.draw_text(window);
-        if self.pod_status != PodStatus::Inactive {
-            self.draw_pod(window);
+        match self.game_status {
+            GameStatus::Playing => {
+                self.draw_mothership(window);
+                self.draw_moonbase(window);
+                self.draw_ground(window);
+                self.draw_landing_pad(window);
+                self.draw_asteroids(window);
+                self.draw_text(window);
+                if self.pod_status != PodStatus::Inactive {
+                    self.draw_pod(window);
+                }
+            }
+            GameStatus::SplashScreen => {
+                self.draw_splash_screen(window);
+            }
+            GameStatus::NewLevel => {
+                self.draw_new_level_screen(window);
+            }
+            GameStatus::GameOver => {
+                self.draw_game_over_screen(window);
+            }
         }
     }
 
@@ -298,9 +365,8 @@ impl Game {
         }
     }
 
-    fn game_over(&self) {
-        // TODO proper "game over" screen
-        exit(0);
+    fn game_over(&mut self) {
+        self.game_status = GameStatus::GameOver;
     }
 
     fn check_for_pod_landing(&mut self) -> bool {
@@ -367,6 +433,9 @@ impl Game {
     }
 
     pub fn set_level(&mut self, level: u8) {
+        if level > 1 {
+            self.game_status = GameStatus::NewLevel;
+        }
         self.level = level;
         self.asteroids.clear();
         let num_asteroids = 16 + 2 * level;
