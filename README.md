@@ -1,5 +1,7 @@
 # Xtarda Rescue
 
+![Screen shot](https://www.martyndavis.com/wp-content/uploads/2022/12/xtarda.png "")
+
 ## Rationale
 Just a bit more retro fun as a Rust learning exercise. This is a game I wrote originally
 for the ZX Spectrum about forty years ago.
