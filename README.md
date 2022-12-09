@@ -1,7 +1,21 @@
 # Xtarda Rescue
 
 ## Rationale
-Just a bit more retro fun as a rust learning exercise.
+Just a bit more retro fun as a Rust learning exercise. This is a game I wrote originally
+for the ZX Spectrum about forty years ago.
+
+## Playing the game
+The object is to rescue people from the hostile planet Xtarda. You are orbiting in your
+mothership and you can drop pods with the down arrow button. You can steer the pod left
+and right as it drops with the left and right arrow keys. You must avoid colliding with any
+of the asteroids below. Once the pod has landed (on the
+landing pad only), you can then take off again with the up arrow key to attempt to return
+to the mothership with one rescued person.
+
+This is a work in progress, so there's quite a lot missing, e.g. animations of the
+rescuees getting into the pod, and any kind of cut-scene between levels. Also when you run
+out of pods, it's game over, and the program just does exit() immediately. All on the TODO list!
+However it is playable in its current state.
 
 ## Pre-requisites
 ### Linux (including WSL)
