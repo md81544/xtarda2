@@ -108,7 +108,7 @@ impl Game {
             men_to_rescue: 5,
             pods_remaining: 0,
             man_pos_x: window_width as f32 * 0.75,
-            man_pos_y: window_height as f32 - 50.0,
+            man_pos_y: window_height as f32 - 60.0,
             man_status: ManStatus::Inactive,
         }
     }
@@ -139,7 +139,7 @@ impl Game {
         if self.man_status == ManStatus::Inactive {
             return;
         }
-        let mut man = RectangleShape::with_size(Vector2f::new(10.0, 10.0));
+        let mut man = RectangleShape::with_size(Vector2f::new(6.0, 20.0));
         man.set_fill_color(Color::rgb(0, 255, 0));
         man.set_position(Vector2f::new(self.man_pos_x, self.man_pos_y));
         window.draw(&man);
@@ -382,12 +382,12 @@ impl Game {
             self.check_for_pod_docking();
         }
         if self.man_status == ManStatus::EnteringPod {
-            if self.man_pos_x > self.pod_pos_x + 10.0 {
+            if self.man_pos_x > self.pod_pos_x + 15.0 {
                 self.man_pos_x -= 10.0;
             } else {
                 self.man_status = ManStatus::Inactive;
                 self.man_pos_x = self.window_width as f32 * 0.75;
-                self.man_pos_y = self.window_height as f32 - 50.0;
+                self.man_pos_y = self.window_height as f32 - 60.0;
             }
         }
     }
@@ -502,6 +502,7 @@ impl Game {
             || self.pod_status == PodStatus::Landed
             || self.pod_status == PodStatus::ReadyForTakeOff
             || self.pod_status == PodStatus::Ascending
+            || self.pod_status == PodStatus::AutoDock
             || self.game_status != GameStatus::Playing
         {
             return;
