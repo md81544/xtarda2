@@ -314,6 +314,9 @@ impl Game {
     }
 
     pub fn next_frame(&mut self) {
+        if self.game_status != GameStatus::Playing {
+            return;
+        }
         if (self.mothership_pos_x > (self.window_width - (self.mothership_width + 50)) as f32
             && self.mothership_direction > 0)
             || (self.mothership_pos_x < 50.0 && self.mothership_direction < 0)
