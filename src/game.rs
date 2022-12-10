@@ -16,6 +16,13 @@ struct Asteroid {
 }
 
 #[derive(Eq, PartialEq)]
+enum ManStatus {
+    Inactive,
+    EnteringPod,
+    _Dropping,
+}
+
+#[derive(Eq, PartialEq)]
 enum PodStatus {
     Inactive,
     Dropping,
@@ -68,6 +75,9 @@ pub struct Game {
     pub sounds_to_play: Vec<Sounds>,
     men_to_rescue: u32,
     pods_remaining: u32,
+    man_pos_x: f32,
+    man_pos_y: f32,
+    man_status: ManStatus,
 }
 
 impl Game {
@@ -97,6 +107,9 @@ impl Game {
             sounds_to_play: vec![],
             men_to_rescue: 5,
             pods_remaining: 0,
+            man_pos_x: window_width as f32 * 0.75,
+            man_pos_y: window_height as f32 - 50.0,
+            man_status: ManStatus::Inactive,
         }
     }
 
@@ -120,6 +133,16 @@ impl Game {
             self.mothership_pos_y,
         ));
         window.draw(&body);
+    }
+
+    fn draw_man(&mut self, window: &mut RenderWindow) {
+        if self.man_status == ManStatus::Inactive {
+            return;
+        }
+        let mut man = RectangleShape::with_size(Vector2f::new(10.0, 10.0));
+        man.set_fill_color(Color::rgb(0, 255, 0));
+        man.set_position(Vector2f::new(self.man_pos_x, self.man_pos_y));
+        window.draw(&man);
     }
 
     fn draw_ground(&mut self, window: &mut RenderWindow) {
@@ -159,7 +182,7 @@ impl Game {
             self.landing_pad_width,
             self.landing_pad_height,
         ));
-        pad.set_fill_color(Color::rgb(0, 200, 0));
+        pad.set_fill_color(Color::rgb(0, 120, 0));
         pad.set_position(Vector2f::new(
             self.landing_pad_x,
             self.window_height as f32 - self.ground_height - self.landing_pad_height,
@@ -293,8 +316,9 @@ impl Game {
             GameStatus::Playing => {
                 self.draw_mothership(window);
                 self.draw_moonbase(window);
-                self.draw_ground(window);
                 self.draw_landing_pad(window);
+                self.draw_man(window);
+                self.draw_ground(window);
                 self.draw_asteroids(window);
                 self.draw_text(window);
                 if self.pod_status != PodStatus::Inactive {
@@ -357,6 +381,15 @@ impl Game {
             }
             self.check_for_pod_docking();
         }
+        if self.man_status == ManStatus::EnteringPod {
+            if self.man_pos_x > self.pod_pos_x + 10.0 {
+                self.man_pos_x -= 10.0;
+            } else {
+                self.man_status = ManStatus::Inactive;
+                self.man_pos_x = self.window_width as f32 * 0.75;
+                self.man_pos_y = self.window_height as f32 - 50.0;
+            }
+        }
     }
 
     fn explode_pod(&mut self) {
@@ -387,7 +420,7 @@ impl Game {
                 - self.pod_size;
             self.pod_status = PodStatus::ReadyForTakeOff;
             self.sounds_to_play.push(Sounds::Landed);
-            // TODO start rescue animation
+            self.man_status = ManStatus::EnteringPod;
             return true;
         }
         if self.pod_pos_y >= self.window_height as f32 - self.ground_height - self.pod_size {
@@ -479,7 +512,9 @@ impl Game {
     }
 
     pub fn launch_pod(&mut self) {
-        if self.pod_status != PodStatus::ReadyForTakeOff {
+        if self.pod_status != PodStatus::ReadyForTakeOff
+            || self.man_status == ManStatus::EnteringPod
+        {
             return;
         }
         self.pod_status = PodStatus::Ascending;

@@ -18,8 +18,7 @@ This is a work in progress, so there's quite a lot missing (see To-Do list below
 it is playable in its current state.
 
 ## To-Do List
-* Animations of the rescuees getting into the pod
-* Maybe animation of rescuee parachuting back down if pod crashes while ascending
+* Maybe animation of rescuee floating back down if pod crashes while ascending
 * Mute music button
 * Make it work better on screens with lower resolutions than 1920x1080
 
