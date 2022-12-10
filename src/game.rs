@@ -466,6 +466,7 @@ impl Game {
             || self.pod_status == PodStatus::Landed
             || self.pod_status == PodStatus::ReadyForTakeOff
             || self.pod_status == PodStatus::Ascending
+            || self.game_status != GameStatus::Playing
         {
             return;
         };
