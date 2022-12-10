@@ -115,7 +115,7 @@ impl Game {
 
     fn draw_mothership(&mut self, window: &mut RenderWindow) {
         let mut fin = RectangleShape::with_size(Vector2f::new(15.0, 15.0));
-        fin.set_fill_color(Color::rgb(0, 200, 0));
+        fin.set_fill_color(Color::rgb(0, 255, 0));
         fin.set_position(Vector2f::new(
             self.mothership_pos_x,
             self.mothership_pos_y + 15.0,
@@ -297,12 +297,23 @@ impl Game {
         text.set_position(Vector2f::new(150.0, 200.0));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
-        self.draw_press_enter(window);
+        self.draw_restart_yn(window);
     }
 
     fn draw_press_enter(&self, window: &mut RenderWindow) {
         let mut text = Text::new(
             &format!("Press ENTER to continue"),
+            &self.font,
+            (self.window_width as f32 * 0.03) as u32,
+        );
+        text.set_position(Vector2f::new(150.0, 500.0));
+        text.set_fill_color(Color::rgb(0, 150, 0));
+        window.draw(&text);
+    }
+
+    fn draw_restart_yn(&self, window: &mut RenderWindow) {
+        let mut text = Text::new(
+            &format!("Restart? Y/N"),
             &self.font,
             (self.window_width as f32 * 0.03) as u32,
         );
@@ -335,6 +346,12 @@ impl Game {
                 self.draw_game_over_screen(window);
             }
         }
+    }
+
+    pub fn restart(&mut self) {
+        self.set_level(1);
+        self.game_status = GameStatus::SplashScreen;
+        self.pod_status = PodStatus::Inactive;
     }
 
     pub fn next_frame(&mut self) {

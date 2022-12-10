@@ -76,6 +76,16 @@ fn main() {
                     Key::Q => {
                         window.close();
                     }
+                    Key::Y => {
+                        if game.game_status == game::GameStatus::GameOver {
+                            game.restart();
+                        }
+                    }
+                    Key::N => {
+                        if game.game_status == game::GameStatus::GameOver {
+                            exit(0);
+                        }
+                    }
                     Key::Down => {
                         game.drop_pod();
                     }
@@ -92,10 +102,9 @@ fn main() {
                         moving_right = false;
                     }
                     Key::Enter => {
-                        if game.game_status == game::GameStatus::GameOver {
-                            exit(0);
+                        if game.game_status != game::GameStatus::GameOver {
+                            game.game_status = game::GameStatus::Playing;
                         }
-                        game.game_status = game::GameStatus::Playing;
                     }
                     _ => {}
                 },
