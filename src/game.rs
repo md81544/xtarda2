@@ -96,7 +96,7 @@ impl Game {
             pod_explosion_timer: 0,
             sounds_to_play: vec![],
             men_to_rescue: 5,
-            pods_remaining: 15,
+            pods_remaining: 0,
         }
     }
 
@@ -444,7 +444,7 @@ impl Game {
         let num_asteroids = 16 + 2 * level;
         let mut rng = rand::thread_rng();
         self.men_to_rescue = (level + 1) as u32;
-        self.pods_remaining = (self.men_to_rescue as f32 * 1.6) as u32;
+        self.pods_remaining += (self.men_to_rescue as f32 * 1.6) as u32;
         for n in 0..num_asteroids {
             let max_speed = (4 + level) as i32;
             let mut speed = rng.gen_range(-max_speed..max_speed);
