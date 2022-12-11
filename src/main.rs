@@ -39,7 +39,6 @@ fn main() {
         Style::DEFAULT,
         &ContextSettings::default(),
     );
-    window.set_framerate_limit(60);
     window.set_vertical_sync_enabled(true);
     window.set_position(Vector2i::new(50, 50));
     window.set_mouse_cursor_visible(false);
@@ -60,6 +59,11 @@ fn main() {
 
     let mut game = game::Game::new(window_width, window_height, resource_path);
     game.new_level(1);
+    if game.debugging_aids {
+        window.set_framerate_limit(10);
+    } else {
+        window.set_framerate_limit(60);
+    }
 
     let mut moving_left = false;
     let mut moving_right = false;

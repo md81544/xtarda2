@@ -78,7 +78,7 @@ pub struct Game {
     man_pos_x: f32,
     man_pos_y: f32,
     man_status: ManStatus,
-    debugging_aids: bool,
+    pub debugging_aids: bool,
 }
 
 impl Game {
@@ -226,14 +226,37 @@ impl Game {
             ));
             window.draw(&blob1);
             if self.debugging_aids {
-                // For testing, draw bounding box
-                let mut rect = RectangleShape::new();
-                rect.set_size((120.0, 80.0));
-                rect.set_fill_color(Color::TRANSPARENT);
-                rect.set_outline_color(Color::RED);
-                rect.set_outline_thickness(2.0);
-                rect.set_position(Vector2f::new(asteroid.x_pos as f32, asteroid.y_pos as f32));
-                window.draw(&rect);
+                // For testing, draw bounding boxes around each blob
+                let mut rect1 = RectangleShape::new();
+                rect1.set_size((asteroid.r1 * 2.0, asteroid.r1 * 2.0));
+                rect1.set_fill_color(Color::TRANSPARENT);
+                rect1.set_outline_color(Color::RED);
+                rect1.set_outline_thickness(2.0);
+                rect1.set_position(Vector2f::new(
+                    asteroid.x_pos as f32,
+                    asteroid.y_pos as f32 + 10.0,
+                ));
+                window.draw(&rect1);
+                let mut rect2 = RectangleShape::new();
+                rect2.set_size((asteroid.r2 * 2.0, asteroid.r2 * 2.0));
+                rect2.set_fill_color(Color::TRANSPARENT);
+                rect2.set_outline_color(Color::RED);
+                rect2.set_outline_thickness(2.0);
+                rect2.set_position(Vector2f::new(
+                    asteroid.x_pos as f32 + 20.0,
+                    asteroid.y_pos as f32,
+                ));
+                window.draw(&rect2);
+                let mut rect3 = RectangleShape::new();
+                rect3.set_size((asteroid.r3 * 2.0, asteroid.r3 * 2.0));
+                rect3.set_fill_color(Color::TRANSPARENT);
+                rect3.set_outline_color(Color::RED);
+                rect3.set_outline_thickness(2.0);
+                rect3.set_position(Vector2f::new(
+                    asteroid.x_pos as f32 + 60.0,
+                    asteroid.y_pos as f32 + 10.0,
+                ));
+                window.draw(&rect3);
             }
         }
     }
@@ -425,9 +448,11 @@ impl Game {
     fn explode_pod(&mut self) {
         self.pod_status = PodStatus::Exploding;
         self.sounds_to_play.push(Sounds::Explosion);
-        self.pods_remaining -= 1;
-        if self.pods_remaining == 0 {
-            self.game_over();
+        if !self.debugging_aids {
+            self.pods_remaining -= 1;
+            if self.pods_remaining == 0 {
+                self.game_over();
+            }
         }
     }
 
@@ -485,12 +510,23 @@ impl Game {
         let pod_centre_x = self.pod_pos_x + (self.pod_size / 2.0);
         let pod_centre_y = self.pod_pos_y + (self.pod_size / 2.0);
         for (idx, asteroid) in self.asteroids.iter().enumerate() {
-            // This is very rudimentary, TODO improve bounding box
-            // But having said that, it seems to work well :)
-            if pod_centre_x >= asteroid.x_pos as f32
-                && pod_centre_x <= asteroid.x_pos as f32 + 120.0
+            // Check the bounding box of each of the three "blobs"
+            // which make each asteroid
+            // r1:
+            if (pod_centre_x >= asteroid.x_pos as f32
+                && pod_centre_x <= asteroid.x_pos as f32 + asteroid.r1 * 2.0
+                && pod_centre_y >= asteroid.y_pos as f32 + 10.0
+                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r1 * 2.0)
+                || // r2:
+                (pod_centre_x >= asteroid.x_pos as f32 + 20.0
+                && pod_centre_x <= asteroid.x_pos as f32 + 20.0 + asteroid.r2 * 2.0
                 && pod_centre_y >= asteroid.y_pos as f32
-                && pod_centre_y <= asteroid.y_pos as f32 + 80.0
+                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r2 * 2.0)
+                || // r3:
+                (pod_centre_x >= asteroid.x_pos as f32 + 60.0
+                && pod_centre_x <= asteroid.x_pos as f32 + 60.0 + asteroid.r3 * 2.0
+                && pod_centre_y >= asteroid.y_pos as f32 + 10.0
+                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r3 * 2.0)
             {
                 self.asteroids.remove(idx);
                 return true;
