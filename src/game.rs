@@ -7,9 +7,9 @@ use sfml::system::Vector2f;
 use sfml::SfBox;
 
 struct Asteroid {
-    y_pos: u32,
-    x_pos: i32,
-    speed: i32,
+    y_pos: f32,
+    x_pos: f32,
+    speed: f32,
     r1: f32,
     r2: f32,
     r3: f32,
@@ -367,11 +367,11 @@ impl Game {
         self.mothership_pos_x += self.mothership_direction as f32;
         for asteroid in &mut self.asteroids {
             asteroid.x_pos += asteroid.speed;
-            if asteroid.speed > 0 && asteroid.x_pos > self.window_width as i32 {
-                asteroid.x_pos = -150;
+            if asteroid.speed > 0.0 && asteroid.x_pos > self.window_width as f32 {
+                asteroid.x_pos = -150.0;
             }
-            if asteroid.speed < 0 && asteroid.x_pos < -150 {
-                asteroid.x_pos = self.window_width as i32;
+            if asteroid.speed < 0.0 && asteroid.x_pos < -150.0 {
+                asteroid.x_pos = self.window_width as f32;
             }
         }
         if self.pod_status == PodStatus::Dropping {
@@ -496,15 +496,15 @@ impl Game {
         self.men_to_rescue = (level + 1) as u32;
         self.pods_remaining += (self.men_to_rescue as f32 * 1.6) as u32;
         for n in 0..num_asteroids {
-            let max_speed = (4 + level) as i32;
+            let max_speed = (4 + level) as f32;
             let mut speed = rng.gen_range(-max_speed..max_speed);
-            if speed == 0 {
+            if speed == 0.0 {
                 speed = max_speed;
             }
             let asteroid = Asteroid {
                 y_pos: ((self.window_height as f32 * 0.144)
-                    + (self.window_height as f32 * 0.02) * n as f32) as u32,
-                x_pos: rng.gen_range(50..self.window_width as i32 - 50),
+                    + (self.window_height as f32 * 0.02) * n as f32) as f32,
+                x_pos: rng.gen_range(50.0..self.window_width as f32 - 50.0),
                 speed: speed,
                 r1: rng.gen_range(20.0..40.0),
                 r2: rng.gen_range(30.0..50.0),
