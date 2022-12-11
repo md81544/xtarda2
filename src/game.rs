@@ -3,7 +3,7 @@ use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
     Transformable,
 };
-use sfml::system::Vector2f;
+use sfml::system::{Vector2f, Vector2i};
 use sfml::SfBox;
 
 struct Asteroid {
@@ -82,6 +82,7 @@ pub struct Game {
     man_pos_y: f32,
     man_status: ManStatus,
     pub debugging_aids: bool,
+    stars: Vec<Vector2i>,
 }
 
 impl Game {
@@ -115,6 +116,7 @@ impl Game {
             man_pos_y: window_height as f32 - 60.0,
             man_status: ManStatus::Inactive,
             debugging_aids: false,
+            stars: Vec::new(),
         }
     }
 
@@ -148,6 +150,15 @@ impl Game {
         man.set_fill_color(Color::rgb(0, 255, 0));
         man.set_position(Vector2f::new(self.man_pos_x, self.man_pos_y));
         window.draw(&man);
+    }
+
+    fn draw_stars(&mut self, window: &mut RenderWindow) {
+        for star in &self.stars {
+            let mut circle = CircleShape::new(3.0, 4);
+            circle.set_fill_color(Color::rgb(0, 92, 0));
+            circle.set_position(Vector2f::new(star.x as f32, star.y as f32));
+            window.draw(&circle);
+        }
     }
 
     fn draw_ground(&mut self, window: &mut RenderWindow) {
@@ -364,6 +375,7 @@ impl Game {
     pub fn draw_screen(&mut self, window: &mut RenderWindow) {
         match self.game_status {
             GameStatus::Playing => {
+                self.draw_stars(window);
                 self.draw_mothership(window);
                 self.draw_moonbase(window);
                 self.draw_landing_pad(window);
@@ -565,6 +577,12 @@ impl Game {
                 r3: rng.gen_range(20.0..40.0),
             };
             self.asteroids.push(asteroid);
+        }
+        for _ in 0..200 {
+            self.stars.push(Vector2i::new(
+                rng.gen_range(0..self.window_width as i32),
+                rng.gen_range(0..self.window_height as i32),
+            ));
         }
     }
 
