@@ -52,6 +52,15 @@ fn main() {
     let docked =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/docked.wav")).unwrap();
     let mut docked_sound = sfml::audio::Sound::with_buffer(&docked);
+    let seatbelt =
+        sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/seatbelt.wav")).unwrap();
+    let mut seatbelt_sound = sfml::audio::Sound::with_buffer(&seatbelt);
+    let take_off =
+        sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/take_off.wav")).unwrap();
+    let mut take_off_sound = sfml::audio::Sound::with_buffer(&take_off);
+    let drop_pod =
+        sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/drop_pod.wav")).unwrap();
+    let mut drop_pod_sound = sfml::audio::Sound::with_buffer(&drop_pod);
     let music_file = resource_path.clone() + "/background.wav";
     let mut music = Music::from_file(&music_file).unwrap();
     music.set_looping(true);
@@ -143,6 +152,15 @@ fn main() {
                 }
                 game::Sounds::Landed => {
                     landed_sound.play();
+                }
+                game::Sounds::Seatbelt => {
+                    seatbelt_sound.play();
+                }
+                game::Sounds::TakeOff => {
+                    take_off_sound.play();
+                }
+                game::Sounds::DropPod => {
+                    drop_pod_sound.play();
                 }
             }
         }

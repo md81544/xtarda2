@@ -42,6 +42,9 @@ pub enum Sounds {
     Explosion,
     Landed,
     Docked,
+    Seatbelt,
+    TakeOff,
+    DropPod,
 }
 
 #[derive(Eq, PartialEq)]
@@ -439,6 +442,7 @@ impl Game {
                 self.man_pos_x -= 10.0;
             } else {
                 self.man_status = ManStatus::Inactive;
+                self.sounds_to_play.push(Sounds::Seatbelt);
                 self.man_pos_x = self.window_width as f32 * 0.75;
                 self.man_pos_y = self.window_height as f32 - 60.0;
             }
@@ -575,6 +579,7 @@ impl Game {
             return;
         };
         self.pod_status = PodStatus::Dropping;
+        self.sounds_to_play.push(Sounds::DropPod);
         self.pod_pos_x = self.mothership_pos_x + 40.0;
         self.pod_pos_y = self.mothership_pos_y + 30.0;
     }
@@ -586,6 +591,7 @@ impl Game {
             return;
         }
         self.pod_status = PodStatus::Ascending;
+        self.sounds_to_play.push(Sounds::TakeOff);
     }
 
     pub fn pod_manoeuvre(&mut self, direction: PodMove) {
