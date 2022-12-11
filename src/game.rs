@@ -7,7 +7,7 @@ use sfml::system::Vector2f;
 use sfml::SfBox;
 
 struct Asteroid {
-    height: u32,
+    y_pos: u32,
     x_pos: i32,
     speed: i32,
     r1: f32,
@@ -206,21 +206,21 @@ impl Game {
             blob3.set_fill_color(Color::rgb(0, 80, 0));
             blob3.set_position(Vector2f::new(
                 asteroid.x_pos as f32 + 60.0,
-                asteroid.height as f32 + 10.0,
+                asteroid.y_pos as f32 + 10.0,
             ));
             window.draw(&blob3);
             let mut blob2 = CircleShape::new(asteroid.r2, 8);
             blob2.set_fill_color(Color::rgb(0, 100, 0));
             blob2.set_position(Vector2f::new(
                 asteroid.x_pos as f32 + 20.0,
-                asteroid.height as f32,
+                asteroid.y_pos as f32,
             ));
             window.draw(&blob2);
             let mut blob1 = CircleShape::new(asteroid.r1, 8);
             blob1.set_fill_color(Color::rgb(0, 120, 0));
             blob1.set_position(Vector2f::new(
                 asteroid.x_pos as f32,
-                asteroid.height as f32 + 10.0,
+                asteroid.y_pos as f32 + 10.0,
             ));
             window.draw(&blob1);
         }
@@ -475,8 +475,8 @@ impl Game {
             // But having said that, it seems to work well :)
             if self.pod_pos_x >= asteroid.x_pos as f32 - self.pod_size
                 && self.pod_pos_x <= asteroid.x_pos as f32 + 120.0
-                && self.pod_pos_y >= asteroid.height as f32
-                && self.pod_pos_y <= asteroid.height as f32 + 30.0
+                && self.pod_pos_y >= asteroid.y_pos as f32
+                && self.pod_pos_y <= asteroid.y_pos as f32 + 30.0
             {
                 self.asteroids.remove(idx);
                 return true;
@@ -502,7 +502,7 @@ impl Game {
                 speed = max_speed;
             }
             let asteroid = Asteroid {
-                height: ((self.window_height as f32 * 0.144)
+                y_pos: ((self.window_height as f32 * 0.144)
                     + (self.window_height as f32 * 0.02) * n as f32) as u32,
                 x_pos: rng.gen_range(50..self.window_width as i32 - 50),
                 speed: speed,
