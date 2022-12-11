@@ -59,7 +59,7 @@ fn main() {
     music.play();
 
     let mut game = game::Game::new(window_width, window_height, resource_path);
-    game.set_level(1);
+    game.new_level(1);
 
     let mut moving_left = false;
     let mut moving_right = false;

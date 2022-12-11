@@ -276,6 +276,7 @@ impl Game {
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
     }
+
     fn draw_splash_screen(&mut self, window: &mut RenderWindow) {
         let mut text = Text::new(
             &format!("Xtarda Rescue!"),
@@ -361,7 +362,7 @@ impl Game {
     }
 
     pub fn restart(&mut self) {
-        self.set_level(1);
+        self.new_level(1);
         self.game_status = GameStatus::SplashScreen;
         self.pod_status = PodStatus::Inactive;
     }
@@ -470,8 +471,7 @@ impl Game {
                 self.pod_status = PodStatus::Inactive;
                 self.men_to_rescue -= 1;
                 if self.men_to_rescue == 0 {
-                    // TODO some form of congratulation / next level
-                    self.set_level(self.level + 1);
+                    self.new_level(self.level + 1);
                 }
                 return true;
             } else {
@@ -499,7 +499,7 @@ impl Game {
         return false;
     }
 
-    pub fn set_level(&mut self, level: u8) {
+    pub fn new_level(&mut self, level: u8) {
         if level > 1 {
             self.game_status = GameStatus::NewLevel;
         }
