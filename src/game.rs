@@ -78,6 +78,7 @@ pub struct Game {
     man_pos_x: f32,
     man_pos_y: f32,
     man_status: ManStatus,
+    debugging_aids: bool,
 }
 
 impl Game {
@@ -110,6 +111,7 @@ impl Game {
             man_pos_x: window_width as f32 * 0.75,
             man_pos_y: window_height as f32 - 60.0,
             man_status: ManStatus::Inactive,
+            debugging_aids: false,
         }
     }
 
@@ -223,6 +225,16 @@ impl Game {
                 asteroid.y_pos as f32 + 10.0,
             ));
             window.draw(&blob1);
+            if self.debugging_aids {
+                // For testing, draw bounding box
+                let mut rect = RectangleShape::new();
+                rect.set_size((120.0, 80.0));
+                rect.set_fill_color(Color::TRANSPARENT);
+                rect.set_outline_color(Color::RED);
+                rect.set_outline_thickness(2.0);
+                rect.set_position(Vector2f::new(asteroid.x_pos as f32, asteroid.y_pos as f32));
+                window.draw(&rect);
+            }
         }
     }
 
@@ -304,7 +316,7 @@ impl Game {
         let mut text = Text::new(
             &format!("Press ENTER to continue"),
             &self.font,
-            (self.window_width as f32 * 0.03) as u32,
+            (self.window_width as f32 * 0.02) as u32,
         );
         text.set_position(Vector2f::new(150.0, 500.0));
         text.set_fill_color(Color::rgb(0, 150, 0));
@@ -315,7 +327,7 @@ impl Game {
         let mut text = Text::new(
             &format!("Restart? Y/N"),
             &self.font,
-            (self.window_width as f32 * 0.03) as u32,
+            (self.window_width as f32 * 0.02) as u32,
         );
         text.set_position(Vector2f::new(150.0, 500.0));
         text.set_fill_color(Color::rgb(0, 150, 0));
@@ -470,13 +482,15 @@ impl Game {
     }
 
     fn check_for_pod_collision(&mut self) -> bool {
+        let pod_centre_x = self.pod_pos_x + (self.pod_size / 2.0);
+        let pod_centre_y = self.pod_pos_y + (self.pod_size / 2.0);
         for (idx, asteroid) in self.asteroids.iter().enumerate() {
             // This is very rudimentary, TODO improve bounding box
             // But having said that, it seems to work well :)
-            if self.pod_pos_x >= asteroid.x_pos as f32 - self.pod_size
-                && self.pod_pos_x <= asteroid.x_pos as f32 + 120.0
-                && self.pod_pos_y >= asteroid.y_pos as f32
-                && self.pod_pos_y <= asteroid.y_pos as f32 + 30.0
+            if pod_centre_x >= asteroid.x_pos as f32
+                && pod_centre_x <= asteroid.x_pos as f32 + 120.0
+                && pod_centre_y >= asteroid.y_pos as f32
+                && pod_centre_y <= asteroid.y_pos as f32 + 80.0
             {
                 self.asteroids.remove(idx);
                 return true;
