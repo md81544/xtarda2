@@ -26,7 +26,6 @@ enum ManStatus {
 enum PodStatus {
     Inactive,
     Dropping,
-    Landed,
     Ascending,
     Exploding,
     ReadyForTakeOff,
@@ -53,6 +52,7 @@ pub enum GameStatus {
     SplashScreen,
     GameOver,
     NewLevel,
+    Paused,
 }
 
 pub struct Game {
@@ -338,6 +338,18 @@ impl Game {
         self.draw_press_enter(window);
     }
 
+    fn draw_pause_screen(&mut self, window: &mut RenderWindow) {
+        let mut text = Text::new(
+            "Paused",
+            &self.font,
+            (self.window_width as f32 * 0.05) as u32,
+        );
+        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_fill_color(Color::rgb(0, 200, 0));
+        window.draw(&text);
+        self.draw_press_enter(window);
+    }
+
     fn draw_game_over_screen(&mut self, window: &mut RenderWindow) {
         let mut text = Text::new(
             &format!("Game Over"),
@@ -395,6 +407,9 @@ impl Game {
             }
             GameStatus::GameOver => {
                 self.draw_game_over_screen(window);
+            }
+            GameStatus::Paused => {
+                self.draw_pause_screen(window);
             }
         }
     }
@@ -587,13 +602,10 @@ impl Game {
     }
 
     pub fn drop_pod(&mut self) {
-        if self.pod_status == PodStatus::Dropping
-            || self.pod_status == PodStatus::Landed
-            || self.pod_status == PodStatus::ReadyForTakeOff
-            || self.pod_status == PodStatus::Ascending
-            || self.pod_status == PodStatus::AutoDock
-            || self.game_status != GameStatus::Playing
-        {
+        if self.game_status != GameStatus::Playing {
+            return;
+        }
+        if self.pod_status != PodStatus::Inactive && self.pod_status != PodStatus::Exploding {
             return;
         };
         self.pod_status = PodStatus::Dropping;
@@ -603,6 +615,9 @@ impl Game {
     }
 
     pub fn launch_pod(&mut self) {
+        if self.game_status != GameStatus::Playing {
+            return;
+        }
         if self.pod_status != PodStatus::ReadyForTakeOff
             || self.man_status == ManStatus::EnteringPod
         {

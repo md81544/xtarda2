@@ -1,7 +1,8 @@
 use std::path::Path;
 use std::process::exit;
 
-use sfml::audio::Music;
+use game::GameStatus;
+use sfml::audio::{Music, SoundStatus};
 use sfml::graphics::{Color, RenderTarget, RenderWindow};
 use sfml::system::Vector2i;
 use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
@@ -79,12 +80,24 @@ fn main() {
 
     // Main Loop
     while window.is_open() {
+        if game.game_status == GameStatus::Paused {
+            music.pause();
+        } else {
+            if music.status() != SoundStatus::PLAYING {
+                music.play();
+            }
+        }
         while let Some(event) = window.poll_event() {
             match event {
                 Event::Closed => window.close(),
                 Event::KeyReleased { code, .. } => match code {
                     Key::Escape => {
                         window.close();
+                    }
+                    Key::P => {
+                        if game.game_status == GameStatus::Playing {
+                            game.game_status = GameStatus::Paused;
+                        }
                     }
                     Key::Q => {
                         window.close();
