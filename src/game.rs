@@ -323,6 +323,7 @@ impl Game {
         text.set_position(Vector2f::new(150.0, 200.0));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
+        self.draw_message("(c) 1982 Sonic Software", window);
         self.draw_press_enter(window);
     }
 
@@ -368,8 +369,15 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.02) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 500.0));
+        text.set_position(Vector2f::new(150.0, 600.0));
         text.set_fill_color(Color::rgb(0, 150, 0));
+        window.draw(&text);
+    }
+
+    fn draw_message(&self, msg: &str, window: &mut RenderWindow) {
+        let mut text = Text::new(msg, &self.font, (self.window_width as f32 * 0.02) as u32);
+        text.set_position(Vector2f::new(150.0, 350.0));
+        text.set_fill_color(Color::rgb(0, 120, 0));
         window.draw(&text);
     }
 
