@@ -163,7 +163,7 @@ impl Game {
 
     fn draw_stars(&mut self, window: &mut RenderWindow) {
         for star in &self.stars {
-            let mut circle = CircleShape::new(star.radius as f32, 10);
+            let mut circle = CircleShape::new(star.radius as f32, 4);
             circle.set_fill_color(Color::rgb(0, star.luminosity, 0));
             circle.set_position(Vector2f::new(star.x_pos as f32, star.y_pos as f32));
             window.draw(&circle);
