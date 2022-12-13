@@ -19,7 +19,6 @@ it is playable in its current state.
 
 ## To-Do List
 * Maybe animation of rescuee floating back down if pod crashes while ascending
-* Mute music button
 * Make it work better on screens with lower resolutions than 1920x1080
 
 ## Pre-requisites

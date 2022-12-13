@@ -66,6 +66,7 @@ fn main() {
     let mut music = Music::from_file(&music_file).unwrap();
     music.set_looping(true);
     music.play();
+    let mut music_muted = false;
 
     let mut game = game::Game::new(window_width, window_height, resource_path);
     game.new_level(1);
@@ -84,7 +85,9 @@ fn main() {
             music.pause();
         } else {
             if music.status() != SoundStatus::PLAYING {
-                music.play();
+                if !music_muted {
+                    music.play();
+                }
             }
         }
         while let Some(event) = window.poll_event() {
@@ -97,6 +100,17 @@ fn main() {
                     Key::P => {
                         if game.game_status == GameStatus::Playing {
                             game.game_status = GameStatus::Paused;
+                        }
+                    }
+                    Key::M => {
+                        if game.game_status != GameStatus::Paused {
+                            if music.status() == SoundStatus::PLAYING {
+                                music.pause();
+                                music_muted = true;
+                            } else {
+                                music.play();
+                                music_muted = false;
+                            }
                         }
                     }
                     Key::Q => {
