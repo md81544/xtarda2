@@ -353,10 +353,6 @@ impl Game {
                 window,
             );
         }
-        self.draw_message(
-            &format!("{} pods carried over", self.pods_carried_over),
-            window,
-        );
         self.draw_press_enter(window);
     }
 
