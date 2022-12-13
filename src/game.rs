@@ -3,7 +3,7 @@ use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
     Transformable,
 };
-use sfml::system::{Vector2f, Vector2i};
+use sfml::system::Vector2f;
 use sfml::SfBox;
 
 struct Asteroid {
@@ -13,6 +13,13 @@ struct Asteroid {
     r1: f32,
     r2: f32,
     r3: f32,
+}
+
+struct Star {
+    y_pos: u32,
+    x_pos: u32,
+    radius: u8,
+    luminosity: u8,
 }
 
 #[derive(Eq, PartialEq)]
@@ -78,11 +85,12 @@ pub struct Game {
     pub sounds_to_play: Vec<Sounds>,
     men_to_rescue: u32,
     pods_remaining: u32,
+    pods_carried_over: u32,
     man_pos_x: f32,
     man_pos_y: f32,
     man_status: ManStatus,
     pub debugging_aids: bool,
-    stars: Vec<Vector2i>,
+    stars: Vec<Star>,
 }
 
 impl Game {
@@ -112,6 +120,7 @@ impl Game {
             sounds_to_play: vec![],
             men_to_rescue: 5,
             pods_remaining: 0,
+            pods_carried_over: 0,
             man_pos_x: window_width as f32 * 0.75,
             man_pos_y: window_height as f32 - 60.0,
             man_status: ManStatus::Inactive,
@@ -154,9 +163,9 @@ impl Game {
 
     fn draw_stars(&mut self, window: &mut RenderWindow) {
         for star in &self.stars {
-            let mut circle = CircleShape::new(3.0, 4);
-            circle.set_fill_color(Color::rgb(0, 92, 0));
-            circle.set_position(Vector2f::new(star.x as f32, star.y as f32));
+            let mut circle = CircleShape::new(star.radius as f32, 10);
+            circle.set_fill_color(Color::rgb(0, star.luminosity, 0));
+            circle.set_position(Vector2f::new(star.x_pos as f32, star.y_pos as f32));
             window.draw(&circle);
         }
     }
@@ -336,6 +345,18 @@ impl Game {
         text.set_position(Vector2f::new(150.0, 200.0));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
+        if self.pods_carried_over == 1 {
+            self.draw_message("1 pod carried over", window);
+        } else if self.pods_carried_over > 1 {
+            self.draw_message(
+                &format!("{} pods carried over", self.pods_carried_over),
+                window,
+            );
+        }
+        self.draw_message(
+            &format!("{} pods carried over", self.pods_carried_over),
+            window,
+        );
         self.draw_press_enter(window);
     }
 
@@ -583,6 +604,7 @@ impl Game {
         let num_asteroids = 16 + 2 * level;
         let mut rng = rand::thread_rng();
         self.men_to_rescue = (level + 1) as u32;
+        self.pods_carried_over = self.pods_remaining;
         self.pods_remaining += (self.men_to_rescue as f32 * 1.6) as u32;
         let asteroid_min_y = self.window_height as f32 * 0.144;
         let asteroid_max_y = self.window_height as f32 * 0.7;
@@ -603,11 +625,16 @@ impl Game {
             };
             self.asteroids.push(asteroid);
         }
-        for _ in 0..200 {
-            self.stars.push(Vector2i::new(
-                rng.gen_range(0..self.window_width as i32),
-                rng.gen_range(0..self.window_height as i32),
-            ));
+        if self.stars.is_empty() {
+            for _ in 0..320 {
+                self.stars.push(Star {
+                    y_pos: rng
+                        .gen_range((self.window_height as f32 * 0.075) as u32..self.window_height),
+                    x_pos: rng.gen_range(0..self.window_width),
+                    radius: rng.gen_range(2..5),
+                    luminosity: rng.gen_range(64..128),
+                });
+            }
         }
     }
 
