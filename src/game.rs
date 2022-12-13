@@ -582,8 +582,8 @@ impl Game {
         for n in 0..num_asteroids {
             let max_speed = 4.0 + level as f32;
             let mut speed = rng.gen_range(-max_speed..max_speed);
-            if speed > -0.1 && speed < 0.1 {
-                speed = max_speed;
+            if speed > -0.25 && speed < 0.25 {
+                speed = 0.25 * speed.signum();
             }
             let asteroid = Asteroid {
                 y_pos: asteroid_min_y + asteroid_vertical_spacing * n as f32,
