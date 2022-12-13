@@ -576,15 +576,17 @@ impl Game {
         let mut rng = rand::thread_rng();
         self.men_to_rescue = (level + 1) as u32;
         self.pods_remaining += (self.men_to_rescue as f32 * 1.6) as u32;
+        let asteroid_min_y = self.window_height as f32 * 0.144;
+        let asteroid_max_y = self.window_height as f32 * 0.7;
+        let asteroid_vertical_spacing = (asteroid_max_y - asteroid_min_y) / num_asteroids as f32;
         for n in 0..num_asteroids {
-            let max_speed = (4 + level) as f32;
+            let max_speed = 4.0 + level as f32;
             let mut speed = rng.gen_range(-max_speed..max_speed);
             if speed > -0.1 && speed < 0.1 {
                 speed = max_speed;
             }
             let asteroid = Asteroid {
-                y_pos: ((self.window_height as f32 * 0.144)
-                    + (self.window_height as f32 * 0.02) * n as f32) as f32,
+                y_pos: asteroid_min_y + asteroid_vertical_spacing * n as f32,
                 x_pos: rng.gen_range(50.0..self.window_width as f32 - 50.0),
                 speed: speed,
                 r1: rng.gen_range(20.0..40.0),
