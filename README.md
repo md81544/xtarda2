@@ -22,18 +22,10 @@ it is playable in its current state.
 * Make it work better on screens with lower resolutions than 1920x1080
 
 ## Pre-requisites
-### Linux (including WSL)
+### Linux
 
 Ensure you have `libcsfml-dev` and `libsfml-dev` installed.
 
-If you are running this from WSL, and you see errors like the following,
-
-```
-Failed to create an OpenGL context for this window
-X Error of failed request:  BadValue (integer parameter out of range for operation)
-```
-
-then try doing `export LIBGL_ALWAYS_INDIRECT=0` in your bash shell first.
 ### Mac
 
 `brew install sfml` and `brew install csfml` (install homebrew if you haven't already)
