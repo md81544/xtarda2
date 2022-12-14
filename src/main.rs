@@ -27,11 +27,7 @@ fn main() {
         resource_path = "../".to_string() + &resource_path;
     }
 
-    let window_width = if screen_width >= 1920 {
-        1920
-    } else {
-        screen_width
-    };
+    let window_width = (screen_width as f32 * 0.8) as u32;
     let window_height = (window_width as f32 / ratio) as u32;
 
     let mut window = RenderWindow::new(

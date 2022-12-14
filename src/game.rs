@@ -67,6 +67,7 @@ pub struct Game {
     level: u8,
     window_width: u32,
     window_height: u32,
+    size_multiplier: f32,
     mothership_pos_y: f32,
     mothership_pos_x: f32,
     mothership_direction: i8,
@@ -95,26 +96,28 @@ pub struct Game {
 
 impl Game {
     pub fn new(window_width: u32, window_height: u32, resource_path: String) -> Game {
-        let pad_width = 250.0;
+        let size_multiplier = window_width as f32 * 0.000520833333333;
+        let pad_width = 250.0 * size_multiplier;
         let font = Font::from_file(&(resource_path + "/zx-spectrum.ttf")).unwrap();
         Game {
             game_status: GameStatus::SplashScreen,
             level: 1,
             window_width,
             window_height,
+            size_multiplier,
             mothership_pos_x: 50.0,
-            mothership_pos_y: 100.0,
+            mothership_pos_y: 100.0 * size_multiplier,
             mothership_direction: 10,
-            mothership_width: 80,
+            mothership_width: (80 as f32 * size_multiplier) as u32,
             asteroids: Vec::new(),
             pod_pos_x: 0.0,
             pod_pos_y: 100.0,
             font,
-            ground_height: 40.0,
-            landing_pad_height: 20.0,
+            ground_height: 40.0 * size_multiplier,
+            landing_pad_height: 20.0 * size_multiplier,
             landing_pad_width: pad_width,
             landing_pad_x: window_width as f32 / 2.0 - (pad_width / 2.0),
-            pod_size: 20.0,
+            pod_size: 20.0 * size_multiplier,
             pod_status: PodStatus::Inactive,
             pod_explosion_timer: 0,
             sounds_to_play: vec![],
@@ -122,7 +125,7 @@ impl Game {
             pods_remaining: 0,
             pods_carried_over: 0,
             man_pos_x: window_width as f32 * 0.75,
-            man_pos_y: window_height as f32 - 60.0,
+            man_pos_y: window_height as f32 - 60.0 * size_multiplier,
             man_status: ManStatus::Inactive,
             debugging_aids: false,
             stars: Vec::new(),
@@ -130,22 +133,28 @@ impl Game {
     }
 
     fn draw_mothership(&mut self, window: &mut RenderWindow) {
-        let mut fin = RectangleShape::with_size(Vector2f::new(15.0, 15.0));
+        let mut fin = RectangleShape::with_size(Vector2f::new(
+            15.0 * self.size_multiplier,
+            15.0 * self.size_multiplier,
+        ));
         fin.set_fill_color(Color::rgb(0, 255, 0));
         fin.set_position(Vector2f::new(
             self.mothership_pos_x,
-            self.mothership_pos_y + 15.0,
+            self.mothership_pos_y + 15.0 * self.size_multiplier,
         ));
         window.draw(&fin);
         fin.set_position(Vector2f::new(
-            self.mothership_pos_x + 65.0,
-            self.mothership_pos_y + 15.0,
+            self.mothership_pos_x + 65.0 * self.size_multiplier,
+            self.mothership_pos_y + 15.0 * self.size_multiplier,
         ));
         window.draw(&fin);
-        let mut body = RectangleShape::with_size(Vector2f::new(50.0, 30.0));
+        let mut body = RectangleShape::with_size(Vector2f::new(
+            50.0 * self.size_multiplier,
+            30.0 * self.size_multiplier,
+        ));
         body.set_fill_color(Color::rgb(0, 255, 0));
         body.set_position(Vector2f::new(
-            self.mothership_pos_x + 15.0,
+            self.mothership_pos_x + 15.0 * self.size_multiplier,
             self.mothership_pos_y,
         ));
         window.draw(&body);
@@ -155,7 +164,10 @@ impl Game {
         if self.man_status == ManStatus::Inactive {
             return;
         }
-        let mut man = RectangleShape::with_size(Vector2f::new(6.0, 20.0));
+        let mut man = RectangleShape::with_size(Vector2f::new(
+            6.0 * self.size_multiplier,
+            20.0 * self.size_multiplier,
+        ));
         man.set_fill_color(Color::rgb(0, 255, 0));
         man.set_position(Vector2f::new(self.man_pos_x, self.man_pos_y));
         window.draw(&man);
@@ -173,32 +185,41 @@ impl Game {
     fn draw_ground(&mut self, window: &mut RenderWindow) {
         let ground_colour = 96;
         let hill_colour = 64;
-        let mut hill1 = CircleShape::new(150.0, 3);
+        let mut hill1 = CircleShape::new(150.0 * self.size_multiplier, 3);
         hill1.set_fill_color(Color::rgb(0, hill_colour, 0));
-        hill1.set_position(Vector2f::new(0.0, self.window_height as f32 - 150.0));
+        hill1.set_position(Vector2f::new(
+            0.0,
+            self.window_height as f32 - 150.0 * self.size_multiplier,
+        ));
         window.draw(&hill1);
-        let mut hill2 = CircleShape::new(300.0, 3);
+        let mut hill2 = CircleShape::new(300.0 * self.size_multiplier, 3);
         hill2.set_fill_color(Color::rgb(0, hill_colour, 0));
-        hill2.set_position(Vector2f::new(-300.0, self.window_height as f32 - 300.0));
+        hill2.set_position(Vector2f::new(
+            -300.0 * self.size_multiplier,
+            self.window_height as f32 - 300.0 * self.size_multiplier,
+        ));
         window.draw(&hill2);
-        let mut hill3 = CircleShape::new(240.0, 3);
+        let mut hill3 = CircleShape::new(240.0 * self.size_multiplier, 3);
         hill3.set_fill_color(Color::rgb(0, hill_colour, 0));
         hill3.set_position(Vector2f::new(
-            self.window_width as f32 - 400.0,
-            self.window_height as f32 - 240.0,
+            self.window_width as f32 - 400.0 * self.size_multiplier,
+            self.window_height as f32 - 240.0 * self.size_multiplier,
         ));
         window.draw(&hill3);
-        let mut hill4 = CircleShape::new(340.0, 3);
+        let mut hill4 = CircleShape::new(340.0 * self.size_multiplier, 3);
         hill4.set_fill_color(Color::rgb(0, hill_colour, 0));
         hill4.set_position(Vector2f::new(
-            self.window_width as f32 - 370.0,
-            self.window_height as f32 - 340.0,
+            self.window_width as f32 - 370.0 * self.size_multiplier,
+            self.window_height as f32 - 340.0 * self.size_multiplier,
         ));
         window.draw(&hill4);
         let mut ground =
             RectangleShape::with_size(Vector2f::new(self.window_width as f32, self.ground_height));
         ground.set_fill_color(Color::rgb(0, ground_colour, 0));
-        ground.set_position(Vector2f::new(0.0, self.window_height as f32 - 40.0));
+        ground.set_position(Vector2f::new(
+            0.0,
+            self.window_height as f32 - 40.0 * self.size_multiplier,
+        ));
         window.draw(&ground);
     }
 
@@ -216,11 +237,11 @@ impl Game {
     }
 
     fn draw_moonbase(&mut self, window: &mut RenderWindow) {
-        let mut moonbase = CircleShape::new(100.0, 32);
+        let mut moonbase = CircleShape::new(100.0 * self.size_multiplier, 32);
         moonbase.set_fill_color(Color::rgb(0, 110, 0));
         moonbase.set_position(Vector2f::new(
             self.window_width as f32 * 0.75,
-            self.window_height as f32 - 100.0 - self.ground_height,
+            self.window_height as f32 - 100.0 * self.size_multiplier - self.ground_height,
         ));
         window.draw(&moonbase);
     }
@@ -230,14 +251,14 @@ impl Game {
             let mut blob3 = CircleShape::new(asteroid.r3, 8);
             blob3.set_fill_color(Color::rgb(0, 80, 0));
             blob3.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + 60.0,
-                asteroid.y_pos as f32 + 10.0,
+                asteroid.x_pos as f32 + 60.0 * self.size_multiplier,
+                asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
             ));
             window.draw(&blob3);
             let mut blob2 = CircleShape::new(asteroid.r2, 8);
             blob2.set_fill_color(Color::rgb(0, 100, 0));
             blob2.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + 20.0,
+                asteroid.x_pos as f32 + 20.0 * self.size_multiplier,
                 asteroid.y_pos as f32,
             ));
             window.draw(&blob2);
@@ -245,7 +266,7 @@ impl Game {
             blob1.set_fill_color(Color::rgb(0, 120, 0));
             blob1.set_position(Vector2f::new(
                 asteroid.x_pos as f32,
-                asteroid.y_pos as f32 + 10.0,
+                asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
             ));
             window.draw(&blob1);
             if self.debugging_aids {
@@ -287,7 +308,7 @@ impl Game {
     fn draw_pod(&mut self, window: &mut RenderWindow) {
         if self.pod_status == PodStatus::Exploding {
             let mut rng = rand::thread_rng();
-            let radius = rng.gen_range(20.0..200.0);
+            let radius = rng.gen_range(20.0 * self.size_multiplier..200.0 * self.size_multiplier);
             let mut explosion = CircleShape::new(radius, 32);
             let lum = rng.gen_range(200..255);
             explosion.set_fill_color(Color::rgb(0, lum, 0));
@@ -329,7 +350,10 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.05) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_position(Vector2f::new(
+            150.0 * self.size_multiplier,
+            200.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
         self.draw_message("(c) 1982 Sonic Software", window);
@@ -342,7 +366,10 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.05) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_position(Vector2f::new(
+            150.0 * self.size_multiplier,
+            200.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
         if self.pods_carried_over == 1 {
@@ -386,14 +413,20 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.02) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 600.0));
+        text.set_position(Vector2f::new(
+            150.0 * self.size_multiplier,
+            600.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 150, 0));
         window.draw(&text);
     }
 
     fn draw_message(&self, msg: &str, window: &mut RenderWindow) {
         let mut text = Text::new(msg, &self.font, (self.window_width as f32 * 0.02) as u32);
-        text.set_position(Vector2f::new(150.0, 350.0));
+        text.set_position(Vector2f::new(
+            150.0 * self.size_multiplier,
+            350.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 120, 0));
         window.draw(&text);
     }
@@ -404,7 +437,10 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.02) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 500.0));
+        text.set_position(Vector2f::new(
+            150.0 * self.size_multiplier,
+            500.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 150, 0));
         window.draw(&text);
     }
@@ -455,7 +491,7 @@ impl Game {
         {
             self.mothership_direction = -self.mothership_direction;
         }
-        self.mothership_pos_x += self.mothership_direction as f32;
+        self.mothership_pos_x += self.mothership_direction as f32 * self.size_multiplier;
         for asteroid in &mut self.asteroids {
             asteroid.x_pos += asteroid.speed;
             if asteroid.speed > 0.0 && asteroid.x_pos > self.window_width as f32 {
@@ -470,7 +506,7 @@ impl Game {
                 if self.check_for_pod_collision() {
                     self.explode_pod();
                 }
-                self.pod_pos_y += 5.0;
+                self.pod_pos_y += 5.0 * self.size_multiplier;
             }
         }
         if self.pod_status == PodStatus::Ascending {
@@ -478,14 +514,14 @@ impl Game {
                 if self.check_for_pod_collision() {
                     self.explode_pod();
                 }
-                self.pod_pos_y -= 5.0;
+                self.pod_pos_y -= 5.0 * self.size_multiplier;
             }
         }
         if self.pod_status == PodStatus::AutoDock {
             if self.mothership_pos_x < self.pod_pos_x {
-                self.pod_pos_x -= 20.0;
+                self.pod_pos_x -= 20.0 * self.size_multiplier;
             } else {
-                self.pod_pos_x += 20.0;
+                self.pod_pos_x += 20.0 * self.size_multiplier;
             }
             self.check_for_pod_docking();
         }
@@ -496,7 +532,7 @@ impl Game {
                 self.man_status = ManStatus::Inactive;
                 self.sounds_to_play.push(Sounds::Seatbelt);
                 self.man_pos_x = self.window_width as f32 * 0.75;
-                self.man_pos_y = self.window_height as f32 - 60.0;
+                self.man_pos_y = self.window_height as f32 - 60.0 * self.size_multiplier;
             }
         }
     }
@@ -601,12 +637,12 @@ impl Game {
         let mut rng = rand::thread_rng();
         self.men_to_rescue = (level + 1) as u32;
         self.pods_carried_over = self.pods_remaining;
-        self.pods_remaining += (self.men_to_rescue as f32 * 1.6) as u32;
+        self.pods_remaining += self.men_to_rescue;
         let asteroid_min_y = self.window_height as f32 * 0.144;
         let asteroid_max_y = self.window_height as f32 * 0.7;
         let asteroid_vertical_spacing = (asteroid_max_y - asteroid_min_y) / num_asteroids as f32;
         for n in 0..num_asteroids {
-            let max_speed = 4.0 + level as f32;
+            let max_speed = 3.0 + (level as f32) / 2.0;
             let mut speed = rng.gen_range(-max_speed..max_speed);
             if speed > -0.25 && speed < 0.25 {
                 speed = 0.25 * speed.signum();
@@ -615,9 +651,9 @@ impl Game {
                 y_pos: asteroid_min_y + asteroid_vertical_spacing * n as f32,
                 x_pos: rng.gen_range(50.0..self.window_width as f32 - 50.0),
                 speed: speed,
-                r1: rng.gen_range(20.0..40.0),
-                r2: rng.gen_range(30.0..50.0),
-                r3: rng.gen_range(20.0..40.0),
+                r1: rng.gen_range(20.0 * self.size_multiplier..40.0 * self.size_multiplier),
+                r2: rng.gen_range(30.0 * self.size_multiplier..50.0 * self.size_multiplier),
+                r3: rng.gen_range(20.0 * self.size_multiplier..40.0 * self.size_multiplier),
             };
             self.asteroids.push(asteroid);
         }
@@ -664,10 +700,10 @@ impl Game {
         if self.pod_status == PodStatus::Dropping || self.pod_status == PodStatus::Ascending {
             match direction {
                 PodMove::Left => {
-                    self.pod_pos_x -= 4.0;
+                    self.pod_pos_x -= 4.0 * self.size_multiplier;
                 }
                 PodMove::Right => {
-                    self.pod_pos_x += 4.0;
+                    self.pod_pos_x += 4.0 * self.size_multiplier;
                 }
             }
         }
