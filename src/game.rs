@@ -401,7 +401,7 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.05) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_position(Vector2f::new(150.0 * self.size_multiplier, 200.0 * self.size_multiplier));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
         self.draw_restart_yn(window);
