@@ -389,7 +389,10 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.05) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 200.0));
+        text.set_position(Vector2f::new(
+            150.0 * self.size_multiplier,
+            200.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
         self.draw_press_enter(window);
@@ -401,7 +404,10 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.05) as u32,
         );
-        text.set_position(Vector2f::new(150.0 * self.size_multiplier, 200.0 * self.size_multiplier));
+        text.set_position(Vector2f::new(
+            150.0 * self.size_multiplier,
+            200.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
         self.draw_restart_yn(window);
@@ -663,7 +669,9 @@ impl Game {
                     y_pos: rng
                         .gen_range((self.window_height as f32 * 0.075) as u32..self.window_height),
                     x_pos: rng.gen_range(0..self.window_width),
-                    radius: rng.gen_range(2..5),
+                    radius: rng.gen_range(
+                        (2.0 * self.size_multiplier) as u8..(5.0 * self.size_multiplier) as u8,
+                    ),
                     luminosity: rng.gen_range(64..128),
                 });
             }
