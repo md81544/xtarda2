@@ -499,11 +499,11 @@ impl Game {
         }
         self.mothership_pos_x += self.mothership_direction as f32 * self.size_multiplier;
         for asteroid in &mut self.asteroids {
-            asteroid.x_pos += asteroid.speed;
+            asteroid.x_pos += asteroid.speed * self.size_multiplier;
             if asteroid.speed > 0.0 && asteroid.x_pos > self.window_width as f32 {
                 asteroid.x_pos = -150.0;
             }
-            if asteroid.speed < 0.0 && asteroid.x_pos < -150.0 {
+            if asteroid.speed < 0.0 && asteroid.x_pos < -150.0 * self.size_multiplier {
                 asteroid.x_pos = self.window_width as f32;
             }
         }
