@@ -278,7 +278,7 @@ impl Game {
                 rect1.set_outline_thickness(2.0);
                 rect1.set_position(Vector2f::new(
                     asteroid.x_pos as f32,
-                    asteroid.y_pos as f32 + 10.0,
+                    asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
                 ));
                 window.draw(&rect1);
                 let mut rect2 = RectangleShape::new();
@@ -287,7 +287,7 @@ impl Game {
                 rect2.set_outline_color(Color::RED);
                 rect2.set_outline_thickness(2.0);
                 rect2.set_position(Vector2f::new(
-                    asteroid.x_pos as f32 + 20.0,
+                    asteroid.x_pos as f32 + 20.0 * self.size_multiplier,
                     asteroid.y_pos as f32,
                 ));
                 window.draw(&rect2);
@@ -297,8 +297,8 @@ impl Game {
                 rect3.set_outline_color(Color::RED);
                 rect3.set_outline_thickness(2.0);
                 rect3.set_position(Vector2f::new(
-                    asteroid.x_pos as f32 + 60.0,
-                    asteroid.y_pos as f32 + 10.0,
+                    asteroid.x_pos as f32 + 60.0 * self.size_multiplier,
+                    asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
                 ));
                 window.draw(&rect3);
             }
@@ -330,7 +330,7 @@ impl Game {
         window.draw(&pod);
     }
 
-    fn draw_text(&mut self, window: &mut RenderWindow) {
+    fn draw_status_bar(&mut self, window: &mut RenderWindow) {
         let mut text = Text::new(
             &format!(
                 "Level: {}  Terrans to Rescue: {}  Pods Left: {}",
@@ -339,7 +339,10 @@ impl Game {
             &self.font,
             (self.window_width as f32 * 0.015625) as u32,
         );
-        text.set_position(Vector2f::new(150.0, 20.0));
+        text.set_position(Vector2f::new(
+            200.0 * self.size_multiplier,
+            20.0 * self.size_multiplier,
+        ));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
     }
@@ -461,7 +464,7 @@ impl Game {
                 self.draw_man(window);
                 self.draw_ground(window);
                 self.draw_asteroids(window);
-                self.draw_text(window);
+                self.draw_status_bar(window);
                 if self.pod_status != PodStatus::Inactive {
                     self.draw_pod(window);
                 }
@@ -613,17 +616,17 @@ impl Game {
             // r1:
             if (pod_centre_x >= asteroid.x_pos as f32
                 && pod_centre_x <= asteroid.x_pos as f32 + asteroid.r1 * 2.0
-                && pod_centre_y >= asteroid.y_pos as f32 + 10.0
-                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r1 * 2.0)
+                && pod_centre_y >= asteroid.y_pos as f32 + 10.0 * self.size_multiplier
+                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r1 * 2.0 )
                 || // r2:
-                (pod_centre_x >= asteroid.x_pos as f32 + 20.0
-                && pod_centre_x <= asteroid.x_pos as f32 + 20.0 + asteroid.r2 * 2.0
+                (pod_centre_x >= asteroid.x_pos as f32 + 20.0 * self.size_multiplier
+                && pod_centre_x <= asteroid.x_pos as f32 + 20.0 * self.size_multiplier + asteroid.r2 * 2.0
                 && pod_centre_y >= asteroid.y_pos as f32
                 && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r2 * 2.0)
                 || // r3:
-                (pod_centre_x >= asteroid.x_pos as f32 + 60.0
-                && pod_centre_x <= asteroid.x_pos as f32 + 60.0 + asteroid.r3 * 2.0
-                && pod_centre_y >= asteroid.y_pos as f32 + 10.0
+                (pod_centre_x >= asteroid.x_pos as f32 + 60.0 * self.size_multiplier
+                && pod_centre_x <= asteroid.x_pos as f32 + 60.0 * self.size_multiplier + asteroid.r3 * 2.0
+                && pod_centre_y >= asteroid.y_pos as f32 + 10.0 * self.size_multiplier
                 && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r3 * 2.0)
             {
                 self.asteroids.remove(idx);
