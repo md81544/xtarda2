@@ -12,19 +12,18 @@ mothership and you can drop pods with the down arrow key. You can steer the pod 
 and right as it drops with the left and right arrow keys. You must avoid colliding with any
 of the asteroids below. Once the pod has landed (on the
 landing pad only), you can then take off again with the up arrow key to attempt to return
-to the mothership with one rescued person.
-
-This is a work in progress, so there's quite a lot missing (see To-Do list below) - however
-it is playable in its current state.
+to the mothership with one rescued person each time.
 
 ## To-Do List
 * Maybe animation of rescuee floating back down if pod crashes while ascending
-* Make it work better on screens with lower resolutions than 1920x1080
 
 ## Pre-requisites
 ### Linux
 
 Ensure you have `libcsfml-dev` and `libsfml-dev` installed.
+
+This runs surprisingly well in WSLg, but very, very slowly in regular WSL2 (plus regular
+WSL2 won't support the sounds and will cause the program to crash).
 
 ### Mac
 
