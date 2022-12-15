@@ -536,7 +536,7 @@ impl Game {
         }
         if self.man_status == ManStatus::EnteringPod {
             if self.man_pos_x > self.pod_pos_x + 15.0 {
-                self.man_pos_x -= 10.0;
+                self.man_pos_x -= 10.0 * self.size_multiplier;
             } else {
                 self.man_status = ManStatus::Inactive;
                 self.sounds_to_play.push(Sounds::Seatbelt);
