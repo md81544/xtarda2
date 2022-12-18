@@ -15,6 +15,9 @@ landing pad only), you can then take off again with the up arrow key to attempt 
 to the mothership with one rescued person each time.
 
 ## To-Do List
+* The game struct is too large and all-encompassing, making unit testing harder, it could be refactored
+* The whole concept of resolution-independence should be addressed just in the display code, with
+  everything else working on a "virtual" resolution of, say, 1920x1280
 * Maybe animation of rescuee floating back down if pod crashes while ascending
 
 ## Pre-requisites

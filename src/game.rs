@@ -6,13 +6,59 @@ use sfml::graphics::{
 use sfml::system::Vector2f;
 use sfml::SfBox;
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_distance() {
+        let mut dist = distance(0.0, 0.0, 1.0, 0.0);
+        assert!(dist == 1.0);
+        dist = distance(0.0, 0.0, 1.0, 1.0);
+        assert!(dist > 1.414 && dist < 1.415);
+    }
+
+    #[test]
+    fn collision_check() {
+        let mut game = Game::new(1920, 1280, "res".to_string());
+        game.pod_pos_x = 10.0;
+        game.pod_pos_y = 10.0;
+
+        let asteroid = Asteroid {
+            y_pos: 0.0,
+            x_pos: 0.0,
+            speed: 0.0,
+            r1: 30.0,
+            r1_offset_x: 0.0,
+            r1_offset_y: 0.0,
+            r2: 30.0,
+            r2_offset_x: 20.0,
+            r2_offset_y: 0.0,
+            r3: 10.0,
+            r3_offset_x: 60.0,
+            r3_offset_y: 0.0,
+        };
+        game.asteroids.push(asteroid);
+        assert!(game.check_for_pod_collision() == true);
+        // Asteroid should have been destroyed
+        assert!(game.asteroids.is_empty());
+    }
+}
+
 struct Asteroid {
+    // Note all values are size_multiplier adjusted
     y_pos: f32,
     x_pos: f32,
     speed: f32,
     r1: f32,
+    r1_offset_x: f32,
+    r1_offset_y: f32,
     r2: f32,
+    r2_offset_x: f32,
+    r2_offset_y: f32,
     r3: f32,
+    r3_offset_x: f32,
+    r3_offset_y: f32,
 }
 
 struct Star {
@@ -92,6 +138,10 @@ pub struct Game {
     man_status: ManStatus,
     pub debugging_aids: bool,
     stars: Vec<Star>,
+}
+
+fn distance(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
+    return f32::sqrt((x2 - x1).powf(2.0) + (y2 - y1).powf(2.0));
 }
 
 impl Game {
@@ -251,57 +301,24 @@ impl Game {
             let mut blob3 = CircleShape::new(asteroid.r3, 8);
             blob3.set_fill_color(Color::rgb(0, 80, 0));
             blob3.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + 60.0 * self.size_multiplier,
-                asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
+                asteroid.x_pos as f32 + asteroid.r3_offset_x,
+                asteroid.y_pos as f32 + asteroid.r3_offset_y,
             ));
             window.draw(&blob3);
             let mut blob2 = CircleShape::new(asteroid.r2, 8);
             blob2.set_fill_color(Color::rgb(0, 100, 0));
             blob2.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + 20.0 * self.size_multiplier,
-                asteroid.y_pos as f32,
+                asteroid.x_pos as f32 + asteroid.r2_offset_x,
+                asteroid.y_pos as f32 + asteroid.r2_offset_y,
             ));
             window.draw(&blob2);
             let mut blob1 = CircleShape::new(asteroid.r1, 8);
             blob1.set_fill_color(Color::rgb(0, 120, 0));
             blob1.set_position(Vector2f::new(
-                asteroid.x_pos as f32,
-                asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
+                asteroid.x_pos as f32 + asteroid.r1_offset_x,
+                asteroid.y_pos as f32 + asteroid.r1_offset_y,
             ));
             window.draw(&blob1);
-            if self.debugging_aids {
-                // For testing, draw bounding boxes around each blob
-                let mut rect1 = RectangleShape::new();
-                rect1.set_size((asteroid.r1 * 2.0, asteroid.r1 * 2.0));
-                rect1.set_fill_color(Color::TRANSPARENT);
-                rect1.set_outline_color(Color::RED);
-                rect1.set_outline_thickness(2.0);
-                rect1.set_position(Vector2f::new(
-                    asteroid.x_pos as f32,
-                    asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
-                ));
-                window.draw(&rect1);
-                let mut rect2 = RectangleShape::new();
-                rect2.set_size((asteroid.r2 * 2.0, asteroid.r2 * 2.0));
-                rect2.set_fill_color(Color::TRANSPARENT);
-                rect2.set_outline_color(Color::RED);
-                rect2.set_outline_thickness(2.0);
-                rect2.set_position(Vector2f::new(
-                    asteroid.x_pos as f32 + 20.0 * self.size_multiplier,
-                    asteroid.y_pos as f32,
-                ));
-                window.draw(&rect2);
-                let mut rect3 = RectangleShape::new();
-                rect3.set_size((asteroid.r3 * 2.0, asteroid.r3 * 2.0));
-                rect3.set_fill_color(Color::TRANSPARENT);
-                rect3.set_outline_color(Color::RED);
-                rect3.set_outline_thickness(2.0);
-                rect3.set_position(Vector2f::new(
-                    asteroid.x_pos as f32 + 60.0 * self.size_multiplier,
-                    asteroid.y_pos as f32 + 10.0 * self.size_multiplier,
-                ));
-                window.draw(&rect3);
-            }
         }
     }
 
@@ -502,9 +519,9 @@ impl Game {
         }
         self.mothership_pos_x += self.mothership_direction as f32 * self.size_multiplier;
         for asteroid in &mut self.asteroids {
-            asteroid.x_pos += asteroid.speed * self.size_multiplier;
+            asteroid.x_pos += asteroid.speed;
             if asteroid.speed > 0.0 && asteroid.x_pos > self.window_width as f32 {
-                asteroid.x_pos = -150.0;
+                asteroid.x_pos = -150.0 * self.size_multiplier;
             }
             if asteroid.speed < 0.0 && asteroid.x_pos < -150.0 * self.size_multiplier {
                 asteroid.x_pos = self.window_width as f32;
@@ -611,24 +628,24 @@ impl Game {
         let pod_centre_x = self.pod_pos_x + (self.pod_size / 2.0);
         let pod_centre_y = self.pod_pos_y + (self.pod_size / 2.0);
         for (idx, asteroid) in self.asteroids.iter().enumerate() {
-            // Check the bounding box of each of the three "blobs"
-            // which make each asteroid
-            // r1:
-            if (pod_centre_x >= asteroid.x_pos as f32
-                && pod_centre_x <= asteroid.x_pos as f32 + asteroid.r1 * 2.0
-                && pod_centre_y >= asteroid.y_pos as f32 + 10.0 * self.size_multiplier
-                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r1 * 2.0 )
-                || // r2:
-                (pod_centre_x >= asteroid.x_pos as f32 + 20.0 * self.size_multiplier
-                && pod_centre_x <= asteroid.x_pos as f32 + 20.0 * self.size_multiplier + asteroid.r2 * 2.0
-                && pod_centre_y >= asteroid.y_pos as f32
-                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r2 * 2.0)
-                || // r3:
-                (pod_centre_x >= asteroid.x_pos as f32 + 60.0 * self.size_multiplier
-                && pod_centre_x <= asteroid.x_pos as f32 + 60.0 * self.size_multiplier + asteroid.r3 * 2.0
-                && pod_centre_y >= asteroid.y_pos as f32 + 10.0 * self.size_multiplier
-                && pod_centre_y <= asteroid.y_pos as f32 + asteroid.r3 * 2.0)
-            {
+            let blob1_centre_x = asteroid.x_pos + asteroid.r1_offset_x + asteroid.r1;
+            let blob1_centre_y = asteroid.y_pos + asteroid.r1_offset_y + asteroid.r1;
+            let mut dist = distance(pod_centre_x, pod_centre_y, blob1_centre_x, blob1_centre_y);
+            if dist <= asteroid.r1 {
+                self.asteroids.remove(idx);
+                return true;
+            }
+            let blob2_centre_x = asteroid.x_pos + asteroid.r2_offset_x + asteroid.r2;
+            let blob2_centre_y = asteroid.y_pos + asteroid.r2_offset_y + asteroid.r2;
+            dist = distance(pod_centre_x, pod_centre_y, blob2_centre_x, blob2_centre_y);
+            if dist <= asteroid.r2 {
+                self.asteroids.remove(idx);
+                return true;
+            }
+            let blob3_centre_x = asteroid.x_pos + asteroid.r3_offset_x + asteroid.r3;
+            let blob3_centre_y = asteroid.y_pos + asteroid.r3_offset_y + asteroid.r3;
+            dist = distance(pod_centre_x, pod_centre_y, blob3_centre_x, blob3_centre_y);
+            if dist <= asteroid.r3 {
                 self.asteroids.remove(idx);
                 return true;
             }
@@ -656,13 +673,20 @@ impl Game {
             if speed > -0.25 && speed < 0.25 {
                 speed = 0.25 * speed.signum();
             }
+            speed *= self.size_multiplier;
             let asteroid = Asteroid {
                 y_pos: asteroid_min_y + asteroid_vertical_spacing * n as f32,
                 x_pos: rng.gen_range(50.0..self.window_width as f32 - 50.0),
                 speed: speed,
                 r1: rng.gen_range(20.0 * self.size_multiplier..40.0 * self.size_multiplier),
+                r1_offset_x: 0.0 * self.size_multiplier, // yes I know
+                r1_offset_y: rng.gen_range(0.0..30.00 * self.size_multiplier),
                 r2: rng.gen_range(30.0 * self.size_multiplier..50.0 * self.size_multiplier),
+                r2_offset_x: 20.0 * self.size_multiplier,
+                r2_offset_y: rng.gen_range(0.0..10.00 * self.size_multiplier),
                 r3: rng.gen_range(20.0 * self.size_multiplier..40.0 * self.size_multiplier),
+                r3_offset_x: 60.0 * self.size_multiplier,
+                r3_offset_y: rng.gen_range(0.0..30.00 * self.size_multiplier),
             };
             self.asteroids.push(asteroid);
         }
