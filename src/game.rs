@@ -19,7 +19,7 @@ mod tests {
     }
 
     #[test]
-    fn collision_check() {
+    fn collision_check_true() {
         let mut game = Game::new(1920, 1280, "res".to_string());
         game.pod_pos_x = 10.0;
         game.pod_pos_y = 10.0;
@@ -42,6 +42,31 @@ mod tests {
         assert!(game.check_for_pod_collision() == true);
         // Asteroid should have been destroyed
         assert!(game.asteroids.is_empty());
+    }
+
+    #[test]
+    fn collision_check_false() {
+        let mut game = Game::new(1920, 1280, "res".to_string());
+        game.pod_pos_x = 10.0;
+        game.pod_pos_y = 10.0;
+
+        let asteroid = Asteroid {
+            y_pos: 100.0,
+            x_pos: 100.0,
+            speed: 0.0,
+            r1: 30.0,
+            r1_offset_x: 0.0,
+            r1_offset_y: 0.0,
+            r2: 30.0,
+            r2_offset_x: 20.0,
+            r2_offset_y: 0.0,
+            r3: 10.0,
+            r3_offset_x: 60.0,
+            r3_offset_y: 0.0,
+        };
+        game.asteroids.push(asteroid);
+        assert!(game.check_for_pod_collision() == false);
+        assert!(game.asteroids.len() > 0);
     }
 }
 
