@@ -1,6 +1,6 @@
 # Xtarda Rescue
 
-![Screen shot](https://www.martyndavis.com/wp-content/uploads/2022/12/xtarda.png "")
+![Screen shot](https://www.martyndavis.com/wp-content/uploads/2022/12/xtarda_rescue.png "")
 
 ## Rationale
 Just a bit more retro fun as a Rust learning exercise. This is a game I wrote originally
