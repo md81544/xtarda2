@@ -25,8 +25,17 @@ to the mothership with one rescued person each time.
 
 Ensure you have `libcsfml-dev` and `libsfml-dev` installed.
 
-This runs surprisingly well in WSLg, but very, very slowly in regular WSL2 (plus regular
-WSL2 won't support the sounds and will cause the program to crash).
+This runs surprisingly well in WSLg (see note below), but very, very slowly in regular WSL2
+(plus regular WSL2 won't support the sounds and will cause the program to crash).
+
+If you _are_ running this from WSLg, and you see errors like the following,
+
+```
+Failed to create an OpenGL context for this window
+X Error of failed request:  BadValue (integer parameter out of range for operation)
+```
+
+then try doing `export LIBGL_ALWAYS_INDIRECT=0` in your bash shell first.
 
 ### Mac
 

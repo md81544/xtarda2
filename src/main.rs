@@ -43,6 +43,9 @@ fn main() {
     let explosion =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/explosion.wav")).unwrap();
     let mut explosion_sound = sfml::audio::Sound::with_buffer(&explosion);
+    let scrape =
+        sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/scrape.wav")).unwrap();
+    let mut scrape_sound = sfml::audio::Sound::with_buffer(&scrape);
     let landed =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/success.wav")).unwrap();
     let mut landed_sound = sfml::audio::Sound::with_buffer(&landed);
@@ -184,6 +187,11 @@ fn main() {
                 }
                 game::Sounds::DropPod => {
                     drop_pod_sound.play();
+                }
+                game::Sounds::Scrape => {
+                    if scrape_sound.status() != SoundStatus::PLAYING {
+                        scrape_sound.play();
+                    }
                 }
             }
         }

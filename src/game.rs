@@ -39,7 +39,7 @@ mod tests {
             r3_offset_y: 0.0,
         };
         game.asteroids.push(asteroid);
-        assert!(game.check_for_pod_collision() == true);
+        assert!(game.check_for_pod_collision() == CollisionType::Fatal);
         // Asteroid should have been destroyed
         assert!(game.asteroids.is_empty());
     }
@@ -65,7 +65,7 @@ mod tests {
             r3_offset_y: 0.0,
         };
         game.asteroids.push(asteroid);
-        assert!(game.check_for_pod_collision() == false);
+        assert!(game.check_for_pod_collision() == CollisionType::None);
         assert!(game.asteroids.len() > 0);
     }
 }
@@ -122,6 +122,7 @@ pub enum Sounds {
     Seatbelt,
     TakeOff,
     DropPod,
+    Scrape,
 }
 
 #[derive(Eq, PartialEq)]
@@ -131,6 +132,13 @@ pub enum GameStatus {
     GameOver,
     NewLevel,
     Paused,
+}
+
+#[derive(Eq, PartialEq)]
+enum CollisionType {
+    None,
+    NearMiss,
+    Fatal,
 }
 
 pub struct Game {
@@ -554,16 +562,28 @@ impl Game {
         }
         if self.pod_status == PodStatus::Dropping {
             if !self.check_for_pod_landing() {
-                if self.check_for_pod_collision() {
-                    self.explode_pod();
+                match self.check_for_pod_collision() {
+                    CollisionType::Fatal => {
+                        self.explode_pod();
+                    }
+                    CollisionType::NearMiss => {
+                        self.sounds_to_play.push(Sounds::Scrape);
+                    }
+                    _ => {}
                 }
                 self.pod_pos_y += 5.0 * self.size_multiplier;
             }
         }
         if self.pod_status == PodStatus::Ascending {
             if !self.check_for_pod_docking() {
-                if self.check_for_pod_collision() {
-                    self.explode_pod();
+                match self.check_for_pod_collision() {
+                    CollisionType::Fatal => {
+                        self.explode_pod();
+                    }
+                    CollisionType::NearMiss => {
+                        self.sounds_to_play.push(Sounds::Scrape);
+                    }
+                    _ => {}
                 }
                 self.pod_pos_y -= 5.0 * self.size_multiplier;
             }
@@ -649,7 +669,7 @@ impl Game {
         return false;
     }
 
-    fn check_for_pod_collision(&mut self) -> bool {
+    fn check_for_pod_collision(&mut self) -> CollisionType {
         let pod_centre_x = self.pod_pos_x + (self.pod_size / 2.0);
         let pod_centre_y = self.pod_pos_y + (self.pod_size / 2.0);
         for (idx, asteroid) in self.asteroids.iter().enumerate() {
@@ -658,24 +678,33 @@ impl Game {
             let mut dist = distance(pod_centre_x, pod_centre_y, blob1_centre_x, blob1_centre_y);
             if dist <= asteroid.r1 {
                 self.asteroids.remove(idx);
-                return true;
+                return CollisionType::Fatal;
+            }
+            if dist <= asteroid.r1 + self.pod_size / 2.0 {
+                return CollisionType::NearMiss;
             }
             let blob2_centre_x = asteroid.x_pos + asteroid.r2_offset_x + asteroid.r2;
             let blob2_centre_y = asteroid.y_pos + asteroid.r2_offset_y + asteroid.r2;
             dist = distance(pod_centre_x, pod_centre_y, blob2_centre_x, blob2_centre_y);
             if dist <= asteroid.r2 {
                 self.asteroids.remove(idx);
-                return true;
+                return CollisionType::Fatal;
+            }
+            if dist <= asteroid.r2 + self.pod_size / 2.0 {
+                return CollisionType::NearMiss;
             }
             let blob3_centre_x = asteroid.x_pos + asteroid.r3_offset_x + asteroid.r3;
             let blob3_centre_y = asteroid.y_pos + asteroid.r3_offset_y + asteroid.r3;
             dist = distance(pod_centre_x, pod_centre_y, blob3_centre_x, blob3_centre_y);
             if dist <= asteroid.r3 {
                 self.asteroids.remove(idx);
-                return true;
+                return CollisionType::Fatal;
+            }
+            if dist <= asteroid.r3 + self.pod_size / 2.0 {
+                return CollisionType::NearMiss;
             }
         }
-        return false;
+        return CollisionType::None;
     }
 
     pub fn new_level(&mut self, level: u8) {
