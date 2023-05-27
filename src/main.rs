@@ -82,12 +82,8 @@ fn main() {
     while window.is_open() {
         if game.game_status == GameStatus::Paused {
             music.pause();
-        } else {
-            if music.status() != SoundStatus::PLAYING {
-                if !music_muted {
-                    music.play();
-                }
-            }
+        } else if music.status() != SoundStatus::PLAYING && !music_muted {
+            music.play();
         }
         while let Some(event) = window.poll_event() {
             match event {

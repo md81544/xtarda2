@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use rand::Rng;
 use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
@@ -174,12 +176,12 @@ pub struct Game {
 }
 
 fn distance(x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
-    return f32::sqrt((x2 - x1).powf(2.0) + (y2 - y1).powf(2.0));
+    f32::sqrt((x2 - x1).powf(2.0) + (y2 - y1).powf(2.0))
 }
 
 impl Game {
     pub fn new(window_width: u32, window_height: u32, resource_path: String) -> Game {
-        let size_multiplier = window_width as f32 * 0.000520833333333;
+        let size_multiplier = window_width as f32 * 0.000_520_833_36;
         let pad_width = 250.0 * size_multiplier;
         let font = Font::from_file(&(resource_path + "/zx-spectrum.ttf")).unwrap();
         Game {
@@ -191,7 +193,7 @@ impl Game {
             mothership_pos_x: 50.0,
             mothership_pos_y: 100.0 * size_multiplier,
             mothership_direction: 10,
-            mothership_width: (80 as f32 * size_multiplier) as u32,
+            mothership_width: (80_f32 * size_multiplier) as u32,
             asteroids: Vec::new(),
             pod_pos_x: 0.0,
             pod_pos_y: 100.0,
@@ -334,22 +336,22 @@ impl Game {
             let mut blob3 = CircleShape::new(asteroid.r3, 8);
             blob3.set_fill_color(Color::rgb(0, 80, 0));
             blob3.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + asteroid.r3_offset_x,
-                asteroid.y_pos as f32 + asteroid.r3_offset_y,
+                asteroid.x_pos + asteroid.r3_offset_x,
+                asteroid.y_pos + asteroid.r3_offset_y,
             ));
             window.draw(&blob3);
             let mut blob2 = CircleShape::new(asteroid.r2, 8);
             blob2.set_fill_color(Color::rgb(0, 100, 0));
             blob2.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + asteroid.r2_offset_x,
-                asteroid.y_pos as f32 + asteroid.r2_offset_y,
+                asteroid.x_pos + asteroid.r2_offset_x,
+                asteroid.y_pos + asteroid.r2_offset_y,
             ));
             window.draw(&blob2);
             let mut blob1 = CircleShape::new(asteroid.r1, 8);
             blob1.set_fill_color(Color::rgb(0, 120, 0));
             blob1.set_position(Vector2f::new(
-                asteroid.x_pos as f32 + asteroid.r1_offset_x,
-                asteroid.y_pos as f32 + asteroid.r1_offset_y,
+                asteroid.x_pos + asteroid.r1_offset_x,
+                asteroid.y_pos + asteroid.r1_offset_y,
             ));
             window.draw(&blob1);
         }
@@ -363,8 +365,8 @@ impl Game {
             let lum = rng.gen_range(200..255);
             explosion.set_fill_color(Color::rgb(0, lum, 0));
             explosion.set_position(Vector2f::new(
-                self.pod_pos_x as f32 - radius + self.pod_size / 2.0,
-                self.pod_pos_y as f32 - radius + self.pod_size / 2.0,
+                self.pod_pos_x - radius + self.pod_size / 2.0,
+                self.pod_pos_y - radius + self.pod_size / 2.0,
             ));
             window.draw(&explosion);
             self.pod_explosion_timer += 1;
@@ -399,7 +401,7 @@ impl Game {
 
     fn draw_splash_screen(&mut self, window: &mut RenderWindow) {
         let mut text = Text::new(
-            &format!("Xtarda Rescue!"),
+            &"Xtarda Rescue!".to_string(),
             &self.font,
             (self.window_width as f32 * 0.05) as u32,
         );
@@ -425,13 +427,17 @@ impl Game {
         ));
         text.set_fill_color(Color::rgb(0, 200, 0));
         window.draw(&text);
-        if self.pods_carried_over == 1 {
-            self.draw_message("1 pod carried over", window);
-        } else if self.pods_carried_over > 1 {
-            self.draw_message(
-                &format!("{} pods carried over", self.pods_carried_over),
-                window,
-            );
+        match 1.cmp(&self.pods_carried_over) {
+            Ordering::Greater => {}
+            Ordering::Equal => {
+                self.draw_message("1 pod carried over", window);
+            }
+            Ordering::Less => {
+                self.draw_message(
+                    &format!("{} pods carried over", self.pods_carried_over),
+                    window,
+                );
+            }
         }
         self.draw_press_enter(window);
     }
@@ -453,7 +459,7 @@ impl Game {
 
     fn draw_game_over_screen(&mut self, window: &mut RenderWindow) {
         let mut text = Text::new(
-            &format!("Game Over"),
+            &"Game Over".to_string(),
             &self.font,
             (self.window_width as f32 * 0.05) as u32,
         );
@@ -468,7 +474,7 @@ impl Game {
 
     fn draw_press_enter(&self, window: &mut RenderWindow) {
         let mut text = Text::new(
-            &format!("Press ENTER to continue"),
+            &"Press ENTER to continue".to_string(),
             &self.font,
             (self.window_width as f32 * 0.02) as u32,
         );
@@ -492,7 +498,7 @@ impl Game {
 
     fn draw_restart_yn(&self, window: &mut RenderWindow) {
         let mut text = Text::new(
-            &format!("Restart? Y/N"),
+            &"Restart? Y/N".to_string(),
             &self.font,
             (self.window_width as f32 * 0.02) as u32,
         );
@@ -560,33 +566,29 @@ impl Game {
                 asteroid.x_pos = self.window_width as f32;
             }
         }
-        if self.pod_status == PodStatus::Dropping {
-            if !self.check_for_pod_landing() {
-                match self.check_for_pod_collision() {
-                    CollisionType::Fatal => {
-                        self.explode_pod();
-                    }
-                    CollisionType::NearMiss => {
-                        self.sounds_to_play.push(Sounds::Scrape);
-                    }
-                    _ => {}
+        if self.pod_status == PodStatus::Dropping && !self.check_for_pod_landing() {
+            match self.check_for_pod_collision() {
+                CollisionType::Fatal => {
+                    self.explode_pod();
                 }
-                self.pod_pos_y += 5.0 * self.size_multiplier;
+                CollisionType::NearMiss => {
+                    self.sounds_to_play.push(Sounds::Scrape);
+                }
+                _ => {}
             }
+            self.pod_pos_y += 5.0 * self.size_multiplier;
         }
-        if self.pod_status == PodStatus::Ascending {
-            if !self.check_for_pod_docking() {
-                match self.check_for_pod_collision() {
-                    CollisionType::Fatal => {
-                        self.explode_pod();
-                    }
-                    CollisionType::NearMiss => {
-                        self.sounds_to_play.push(Sounds::Scrape);
-                    }
-                    _ => {}
+        if self.pod_status == PodStatus::Ascending && !self.check_for_pod_docking() {
+            match self.check_for_pod_collision() {
+                CollisionType::Fatal => {
+                    self.explode_pod();
                 }
-                self.pod_pos_y -= 5.0 * self.size_multiplier;
+                CollisionType::NearMiss => {
+                    self.sounds_to_play.push(Sounds::Scrape);
+                }
+                _ => {}
             }
+            self.pod_pos_y -= 5.0 * self.size_multiplier;
         }
         if self.pod_status == PodStatus::AutoDock {
             if self.mothership_pos_x < self.pod_pos_x {
@@ -666,7 +668,7 @@ impl Game {
                 self.pod_status = PodStatus::AutoDock;
             }
         }
-        return false;
+        false
     }
 
     fn check_for_pod_collision(&mut self) -> CollisionType {
@@ -704,7 +706,7 @@ impl Game {
                 return CollisionType::NearMiss;
             }
         }
-        return CollisionType::None;
+        CollisionType::None
     }
 
     pub fn new_level(&mut self, level: u8) {
@@ -717,7 +719,7 @@ impl Game {
         let mut rng = rand::thread_rng();
         self.men_to_rescue = (level + 1) as u32;
         self.pods_carried_over = self.pods_remaining;
-        self.pods_remaining += (self.men_to_rescue as f32 * 0.6) as u32;
+        self.pods_remaining += 1 + (self.men_to_rescue as f32 * 0.25) as u32;
         let asteroid_min_y = self.window_height as f32 * 0.144;
         let asteroid_max_y = self.window_height as f32 * 0.7;
         let asteroid_vertical_spacing = (asteroid_max_y - asteroid_min_y) / num_asteroids as f32;
@@ -731,7 +733,7 @@ impl Game {
             let asteroid = Asteroid {
                 y_pos: asteroid_min_y + asteroid_vertical_spacing * n as f32,
                 x_pos: rng.gen_range(50.0..self.window_width as f32 - 50.0),
-                speed: speed,
+                speed,
                 r1: rng.gen_range(20.0 * self.size_multiplier..40.0 * self.size_multiplier),
                 r1_offset_x: 0.0 * self.size_multiplier, // yes I know
                 r1_offset_y: rng.gen_range(0.0..30.00 * self.size_multiplier),
