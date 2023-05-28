@@ -5,7 +5,7 @@ use game::GameStatus;
 use sfml::audio::{Music, SoundStatus};
 use sfml::graphics::{Color, RenderTarget, RenderWindow};
 use sfml::system::Vector2i;
-use sfml::window::{ContextSettings, Event, Key, Style, VideoMode};
+use sfml::window::{joystick, ContextSettings, Event, Key, Style, VideoMode};
 
 mod game;
 
@@ -86,6 +86,36 @@ fn main() {
             music.play();
         }
         while let Some(event) = window.poll_event() {
+            if joystick::is_connected(0) {
+                let x = joystick::axis_position(0, joystick::Axis::Z);
+                if x > 30.0 {
+                    moving_right = true;
+                } else if x < -30.0 {
+                    moving_left = true;
+                } else {
+                    moving_left = false;
+                    moving_right = false;
+                }
+                if joystick::axis_position(0, joystick::Axis::V) > -50.0 {
+                    game.launch_pod();
+                    game.drop_pod();
+                }
+                if joystick::is_button_pressed(0, 1) {
+                    // Button A
+                    if game.game_status == game::GameStatus::GameOver {
+                        game.restart();
+                    }
+                    if game.game_status != game::GameStatus::GameOver {
+                        game.game_status = game::GameStatus::Playing;
+                    }
+                }
+                if joystick::is_button_pressed(0, 2) {
+                    // Button B
+                    if game.game_status == game::GameStatus::GameOver {
+                        exit(0);
+                    }
+                }
+            }
             match event {
                 Event::Closed => window.close(),
                 Event::KeyReleased { code, .. } => match code {
