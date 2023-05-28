@@ -17,14 +17,15 @@ to the mothership with one rescued person each time.
 ### Joystick Support
 I've added really rudimentary joystick support - if you have a gamepad controller connected,
 then the right trigger functions as 'release pod' and 'launch pod', the right-hand joystick
-will steer the pod, button 'A' functions as pressing 'Y' and 'B' will quit when you see the
-'restart y/n' prompt.
+will steer the pod, button 'A' functions as pressing 'Y' or Enter at prompts, and 'B' will
+quit when you see the 'Restart Y/N' prompt.
 
 ## To-Do List
 * The game struct is too large and all-encompassing, making unit testing harder, it could be refactored
 * The whole concept of resolution-independence should be addressed just in the display code, with
   everything else working on a "virtual" resolution of, say, 1920x1280
 * Maybe animation of rescuee floating back down if pod crashes while ascending
+* Joystick buttons could be configurable
 
 ## Pre-requisites
 ### Linux
