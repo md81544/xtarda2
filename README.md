@@ -32,6 +32,10 @@ quit when you see the `Restart Y/N` prompt.
 
 Ensure you have `libcsfml-dev` and `libsfml-dev` installed.
 
+### WSL (Windows Subsystem for Linux)
+
+As per Linux above.
+
 This runs surprisingly well in WSLg (see note below), but very, very slowly in regular WSL2
 (plus regular WSL2 won't support the sounds and will cause the program to crash).
 
