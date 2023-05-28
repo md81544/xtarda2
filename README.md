@@ -14,6 +14,12 @@ of the asteroids below. Once the pod has landed (on the
 landing pad only), you can then take off again with the up arrow key to attempt to return
 to the mothership with one rescued person each time.
 
+### Joystick Support
+I've added really rudimentary joystick support - if you have a gamepad controller connected,
+then the right trigger functions as 'release pod' and 'launch pod', the right-hand joystick
+will steer the pod, button 'A' functions as pressing 'Y' and 'B' will quit when you see the
+'restart y/n' prompt.
+
 ## To-Do List
 * The game struct is too large and all-encompassing, making unit testing harder, it could be refactored
 * The whole concept of resolution-independence should be addressed just in the display code, with
