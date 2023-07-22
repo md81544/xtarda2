@@ -1,5 +1,6 @@
 use std::path::Path;
 use std::process::exit;
+use std::env;
 
 use game::GameStatus;
 use sfml::audio::{Music, SoundStatus};
@@ -10,8 +11,14 @@ use sfml::window::{joystick, ContextSettings, Event, Key, Style, VideoMode};
 mod game;
 
 fn main() {
-    let screen_width = VideoMode::desktop_mode().width;
-    let screen_height = VideoMode::desktop_mode().height;
+    let mut screen_width = VideoMode::desktop_mode().width;
+    let mut screen_height = VideoMode::desktop_mode().height;
+    if env::consts::OS == "macos" {
+        // Temporary workaround for what appears to be a bug in the latest
+        // SFML version which reports the screen resolution as too high
+        screen_height /= 2;
+        screen_width /= 2;
+    }
     let ratio: f32 = screen_width as f32 / screen_height as f32;
 
     let mut resource_path = "res".to_string();
