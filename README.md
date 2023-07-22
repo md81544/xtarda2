@@ -54,6 +54,10 @@ then try doing `export LIBGL_ALWAYS_INDIRECT=0` in your bash shell first.
 
 then `export SFML_INCLUDE_DIR=/System/Volumes/Data/opt/homebrew/include` and `export SFML_LIBS_DIR=/System/Volumes/Data/opt/homebrew/lib`
 
+**Note** there appears to be a bug in the latest SFML which means that the Mac's desktop size
+is mis-reported. If the window appears larger than the screen, then change screen_width and
+height to something sensible manually in main(). I haven't investigated this fully yet so
+there may be a better workaround.
 
 ## Building
 Just the usual `cargo build`.
