@@ -125,6 +125,7 @@ pub enum Sounds {
     TakeOff,
     DropPod,
     Scrape,
+    Bonus,
 }
 
 #[derive(Eq, PartialEq)]
@@ -657,6 +658,11 @@ impl Game {
                 && self.pod_pos_x
                     <= self.mothership_pos_x + self.mothership_width as f32 - self.pod_size
             {
+                if self.pod_status != PodStatus::AutoDock {
+                    // bonus for not needing autodock
+                    self.pods_remaining += 1;
+                    self.sounds_to_play.push(Sounds::Bonus);
+                }
                 self.sounds_to_play.push(Sounds::Docked);
                 self.pod_status = PodStatus::Inactive;
                 self.men_to_rescue -= 1;

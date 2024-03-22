@@ -65,6 +65,9 @@ fn main() {
     let take_off =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/take_off.wav")).unwrap();
     let mut take_off_sound = sfml::audio::Sound::with_buffer(&take_off);
+    let bonus =
+        sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/bonus.wav")).unwrap();
+    let mut bonus_sound = sfml::audio::Sound::with_buffer(&bonus);
     let drop_pod =
         sfml::audio::SoundBuffer::from_file(&(resource_path.clone() + "/drop_pod.wav")).unwrap();
     let mut drop_pod_sound = sfml::audio::Sound::with_buffer(&drop_pod);
@@ -225,6 +228,9 @@ fn main() {
                     if scrape_sound.status() != SoundStatus::PLAYING {
                         scrape_sound.play();
                     }
+                }
+                game::Sounds::Bonus => {
+                    bonus_sound.play();
                 }
             }
         }
