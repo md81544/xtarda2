@@ -54,6 +54,15 @@ then try doing `export LIBGL_ALWAYS_INDIRECT=0` in your bash shell first.
 
 then `export SFML_INCLUDE_DIR=/System/Volumes/Data/opt/homebrew/include` and `export SFML_LIBS_DIR=/System/Volumes/Data/opt/homebrew/lib`
 
+**Note** if you get an error like the following:
+
+```
+CSFML/src/Window/Touch.cpp:13:84: error: no type named 'Window' in namespace 'sf'
+```
+
+then edit the file `~/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sfml-0.19.0/CSFML/src/Window/Touch.cpp`
+and add the include `#include <SFML/Window/Window.hpp>` to its list of includes - it seems a bug in CSFML.
+
 ## Building
 Just the usual `cargo build`.
 
