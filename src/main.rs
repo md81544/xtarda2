@@ -13,10 +13,10 @@ mod game;
 fn main() {
     let mut screen_width = VideoMode::desktop_mode().width;
     let mut screen_height = VideoMode::desktop_mode().height;
-    if env::consts::OS == "macos" && env::consts::ARCH == "aarch64" {
+    if env::consts::OS == "macos" {
         // Temporary workaround for what appears to be a bug in the latest
         // SFML version which reports the screen resolution as too high
-        // on Apple silicon macs
+        // on Apple "retina" macs
         screen_height /= 2;
         screen_width /= 2;
     }
