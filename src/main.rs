@@ -10,9 +10,8 @@ use sfml::window::{joystick, ContextSettings, Event, Key, Style, VideoMode};
 mod game;
 
 fn main() {
-    let screen_width = VideoMode::desktop_mode().width;
-    let screen_height = VideoMode::desktop_mode().height;
-    let ratio: f32 = screen_width as f32 / screen_height as f32;
+    let window_width = VideoMode::desktop_mode().width;
+    let window_height = VideoMode::desktop_mode().height;
 
     let mut resource_path = "res".to_string();
     let mut count = 0;
@@ -27,15 +26,17 @@ fn main() {
         resource_path = "../".to_string() + &resource_path;
     }
 
-    let window_width = (screen_width as f32 * 0.8) as u32;
-    let window_height = (window_width as f32 / ratio) as u32;
+    let mode = VideoMode::new(window_width, window_height, 32);
+    let settings = ContextSettings::default();
 
     let mut window = RenderWindow::new(
-        (window_width, window_height),
+        mode,
         "Xtarda Rescue",
-        Style::DEFAULT,
-        &ContextSettings::default(),
-    );
+        Style::CLOSE | Style::FULLSCREEN,
+        &settings,
+    )
+    .expect("Cannot create RenderWindow");
+
     window.set_vertical_sync_enabled(true);
     window.set_position(Vector2i::new(50, 50));
     window.set_mouse_cursor_visible(false);

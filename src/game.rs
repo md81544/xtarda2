@@ -6,7 +6,7 @@ use sfml::graphics::{
     Transformable,
 };
 use sfml::system::Vector2f;
-use sfml::SfBox;
+use sfml::cpp::FBox;
 
 #[cfg(test)]
 mod tests {
@@ -157,7 +157,7 @@ pub struct Game {
     asteroids: Vec<Asteroid>,
     pod_pos_x: f32,
     pod_pos_y: f32,
-    font: SfBox<Font>,
+    font: FBox<Font>,
     ground_height: f32,
     landing_pad_height: f32,
     landing_pad_width: f32,
