@@ -724,6 +724,9 @@ impl Game {
         let num_asteroids = 16 + 2 * level;
         let mut rng = rand::thread_rng();
         self.men_to_rescue = (level + 1) as u32;
+        if self.men_to_rescue > 5 {
+            self.men_to_rescue = 5;
+        }
         self.pods_carried_over = self.pods_remaining;
         self.pods_remaining += 1 + (self.men_to_rescue as f32 * 0.25) as u32;
         let asteroid_min_y = self.window_height as f32 * 0.144;
