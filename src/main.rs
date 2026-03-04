@@ -122,6 +122,9 @@ fn main() {
             }
             match event {
                 Event::Closed => window.close(),
+                Event::LostFocus => {
+                    game.game_status = GameStatus::Paused;
+                },
                 Event::KeyReleased { code, .. } => match code {
                     Key::Escape => {
                         window.close();
