@@ -32,7 +32,7 @@ fn main() {
     let mut window = RenderWindow::new(
         mode,
         "Xtarda Rescue",
-        Style::CLOSE,
+        Style::CLOSE | Style::RESIZE,
         &settings,
     )
     .expect("Cannot create RenderWindow");
