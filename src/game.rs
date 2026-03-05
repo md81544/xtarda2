@@ -779,7 +779,7 @@ impl Game {
         };
         self.pod_status = PodStatus::Dropping;
         self.sounds_to_play.push(Sounds::DropPod);
-        self.pod_pos_x = self.mothership_pos_x + 40.0;
+        self.pod_pos_x = self.mothership_pos_x + 25.0 + self.mothership_direction as f32;
         self.pod_pos_y = self.mothership_pos_y + 30.0;
     }
 
