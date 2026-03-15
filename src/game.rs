@@ -1,12 +1,12 @@
 use std::cmp::Ordering;
 
 use rand::Rng;
+use sfml::cpp::FBox;
 use sfml::graphics::{
     CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
     Transformable,
 };
 use sfml::system::Vector2f;
-use sfml::cpp::FBox;
 
 #[cfg(test)]
 mod tests {
@@ -112,11 +112,6 @@ enum PodStatus {
     AutoDock,
 }
 
-pub enum PodMove {
-    Left,
-    Right,
-}
-
 pub enum Sounds {
     Explosion,
     Landed,
@@ -157,6 +152,7 @@ pub struct Game {
     asteroids: Vec<Asteroid>,
     pod_pos_x: f32,
     pod_pos_y: f32,
+    pod_delta: i8,
     font: FBox<Font>,
     ground_height: f32,
     landing_pad_height: f32,
@@ -198,6 +194,7 @@ impl Game {
             asteroids: Vec::new(),
             pod_pos_x: 0.0,
             pod_pos_y: 100.0,
+            pod_delta: 0,
             font,
             ground_height: 40.0 * size_multiplier,
             landing_pad_height: 20.0 * size_multiplier,
@@ -796,16 +793,24 @@ impl Game {
         self.sounds_to_play.push(Sounds::TakeOff);
     }
 
-    pub fn pod_manoeuvre(&mut self, direction: PodMove) {
+    pub fn pod_manoeuvre(&mut self) {
         if self.pod_status == PodStatus::Dropping || self.pod_status == PodStatus::Ascending {
-            match direction {
-                PodMove::Left => {
-                    self.pod_pos_x -= 4.0 * self.size_multiplier;
-                }
-                PodMove::Right => {
-                    self.pod_pos_x += 4.0 * self.size_multiplier;
-                }
-            }
+            self.pod_pos_x += self.pod_delta as f32 * self.size_multiplier
         }
+    }
+
+    pub fn pod_set_delta(&mut self, delta: i8) {
+        let mut d = delta;
+        if d > 4 {
+            d = 4
+        };
+        if d < -4 {
+            d = -4
+        };
+        self.pod_delta = d;
+    }
+
+    pub fn get_pod_delta(&mut self) -> i8 {
+        self.pod_delta
     }
 }

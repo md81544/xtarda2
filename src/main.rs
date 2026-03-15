@@ -79,9 +79,6 @@ fn main() {
         window.set_framerate_limit(60);
     }
 
-    let mut moving_left = false;
-    let mut moving_right = false;
-
     // Main Loop
     while window.is_open() {
         if game.game_status == GameStatus::Paused {
@@ -92,14 +89,7 @@ fn main() {
         while let Some(event) = window.poll_event() {
             if joystick::is_connected(0) {
                 let x = joystick::axis_position(0, joystick::Axis::Z);
-                if x > 30.0 {
-                    moving_right = true;
-                } else if x < -30.0 {
-                    moving_left = true;
-                } else {
-                    moving_left = false;
-                    moving_right = false;
-                }
+                game.pod_set_delta(convert_joystick_to_delta(x));
                 if joystick::axis_position(0, joystick::Axis::V) > -50.0 {
                     game.launch_pod();
                     game.drop_pod();
@@ -168,10 +158,10 @@ fn main() {
                         game.drop_pod();
                     }
                     Key::Left => {
-                        moving_left = false;
+                        game.pod_set_delta(0);
                     }
                     Key::Right => {
-                        moving_right = false;
+                        game.pod_set_delta(0);
                     }
                     Key::Enter => {
                         if game.game_status != game::GameStatus::GameOver {
@@ -182,21 +172,18 @@ fn main() {
                 },
                 Event::KeyPressed { code, .. } => match code {
                     Key::Left => {
-                        moving_left = true;
+                        game.pod_set_delta(-4);
                     }
                     Key::Right => {
-                        moving_right = true;
+                        game.pod_set_delta(4);
                     }
                     _ => {}
                 },
                 _ => {} // ignore other events
             }
         }
-        if moving_right {
-            game.pod_manoeuvre(game::PodMove::Right);
-        }
-        if moving_left {
-            game.pod_manoeuvre(game::PodMove::Left);
+        if game.get_pod_delta() != 0 {
+            game.pod_manoeuvre();
         }
         window.clear(Color::BLACK);
         game.next_frame();
@@ -233,5 +220,11 @@ fn main() {
         }
         game.sounds_to_play.clear();
         window.display();
+    }
+
+    fn convert_joystick_to_delta(x: f32) -> i8 {
+        // Joystick values range from -100 to +100
+        // Need to convert these to -4 to +4 for pod delta:
+        (x / 20_f32) as i8
     }
 }
