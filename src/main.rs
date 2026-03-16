@@ -224,7 +224,8 @@ fn main() {
 
     fn convert_joystick_to_delta(x: f32) -> i8 {
         // Joystick values range from -100 to +100
-        // Need to convert these to -4 to +4 for pod delta:
+        // Need to roughly convert these to -4 to +4 for pod delta
+        // (values are clamped in game.pod_set_delta() )
         (x / 20_f32) as i8
     }
 }
