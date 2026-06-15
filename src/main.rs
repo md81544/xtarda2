@@ -88,9 +88,9 @@ fn main() {
         }
         while let Some(event) = window.poll_event() {
             if joystick::is_connected(0) {
-                let x = joystick::axis_position(0, joystick::Axis::Z);
+                let x = joystick::axis_position(0, joystick::Axis::X);
                 game.pod_set_delta(convert_joystick_to_delta(x));
-                if joystick::axis_position(0, joystick::Axis::V) > -50.0 {
+                if joystick::axis_position(0, joystick::Axis::V).abs() > 30.0 {
                     game.launch_pod();
                     game.drop_pod();
                 }
